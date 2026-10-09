@@ -92,7 +92,7 @@ the house name as shown in Gladys; empty means the first located house.
 
 ## Calls to the NWS
 
-Every request carries `User-Agent: gladys-nws/<version> (https://github.com/William-De71/gladys-nws[, contact])`.
+Every request carries `User-Agent: gladys-national-weather-service/<version> (https://github.com/William-De71/gladys-national-weather-service[, contact])`.
 
 | Endpoint                                  | Kept             |
 | ----------------------------------------- | ---------------- |
@@ -134,7 +134,7 @@ Layout:
 - `src/scene-actions.js`, `src/widgets.js` — scene outputs and widget contents.
 
 Release: Actions → Release → patch / minor / major (bumps `package.json` and the manifest, writes the changelog,
-tags, builds the multi-arch image `ghcr.io/william-de71/gladys-nws`). The ghcr package must be public.
+tags, builds the multi-arch image `ghcr.io/william-de71/gladys-national-weather-service`). The ghcr package must be public.
 
 ## Requirements
 

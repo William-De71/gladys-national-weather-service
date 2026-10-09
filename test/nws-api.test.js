@@ -55,7 +55,7 @@ function client(routes, options = {}) {
   let clock = NOW;
   const nws = createNwsClient({
     fetchImpl,
-    getUserAgent: () => 'gladys-nws/test (contact)',
+    getUserAgent: () => 'gladys-national-weather-service/test (contact)',
     getCacheDuration: () => 600,
     now: () => clock,
     sleep: async () => {},
@@ -70,11 +70,11 @@ const POINT_URL = 'https://api.weather.gov/points/39.7456,-97.0892';
 test('identifies itself as the NWS requires', () => {
   assert.equal(
     buildUserAgent('0.1.0', 'me@example.com'),
-    'gladys-nws/0.1.0 (https://github.com/William-De71/gladys-nws, me@example.com)',
+    'gladys-national-weather-service/0.1.0 (https://github.com/William-De71/gladys-national-weather-service, me@example.com)',
   );
   assert.equal(
     buildUserAgent('0.1.0'),
-    'gladys-nws/0.1.0 (https://github.com/William-De71/gladys-nws)',
+    'gladys-national-weather-service/0.1.0 (https://github.com/William-De71/gladys-national-weather-service)',
   );
   assert.equal(formatCoordinate(39.745612), '39.7456');
   assert.equal(formatCoordinate(-97.1), '-97.1');
@@ -86,7 +86,10 @@ test('resolves a point once a day and sends the User-Agent', async () => {
   assert.deepEqual(await nws.getPoint(39.745612, -97.08921), point);
   await nws.getPoint(39.7456, -97.0892);
   assert.equal(fetchImpl.calls.length, 1);
-  assert.equal(fetchImpl.calls[0].headers['User-Agent'], 'gladys-nws/test (contact)');
+  assert.equal(
+    fetchImpl.calls[0].headers['User-Agent'],
+    'gladys-national-weather-service/test (contact)',
+  );
   assert.equal(fetchImpl.calls[0].headers.Accept, 'application/geo+json');
   advance(25 * 60 * 60 * 1000);
   await nws.getPoint(39.7456, -97.0892);

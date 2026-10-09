@@ -1,5 +1,5 @@
 {
-  "name": "gladys-nws",
+  "name": "gladys-national-weather-service",
   "version": "0.1.0",
   "private": true,
   "description": "External Gladys Assistant integration providing National Weather Service forecasts and official alerts for the United States.",

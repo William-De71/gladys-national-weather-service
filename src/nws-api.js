@@ -82,14 +82,14 @@ function formatCoordinate(value) {
  * @returns {string} The User-Agent header.
  * @example
  * buildUserAgent('0.1.0', 'me@example.com');
- * // -> 'gladys-nws/0.1.0 (https://github.com/William-De71/gladys-nws, me@example.com)'
+ * // -> 'gladys-national-weather-service/0.1.0 (https://github.com/William-De71/gladys-national-weather-service, me@example.com)'
  */
 function buildUserAgent(version, contact = '') {
-  const parts = ['https://github.com/William-De71/gladys-nws'];
+  const parts = ['https://github.com/William-De71/gladys-national-weather-service'];
   if (contact) {
     parts.push(contact);
   }
-  return `gladys-nws/${version} (${parts.join(', ')})`;
+  return `gladys-national-weather-service/${version} (${parts.join(', ')})`;
 }
 
 /**
