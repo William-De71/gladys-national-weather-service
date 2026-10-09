@@ -1,0 +1,33 @@
+{
+  "properties": {
+    "gridId": "TOP",
+    "gridX": 32,
+    "gridY": 81,
+    "forecast": "https://api.weather.gov/gridpoints/TOP/32,81/forecast",
+    "forecastHourly": "https://api.weather.gov/gridpoints/TOP/32,81/forecast/hourly",
+    "forecastGridData": "https://api.weather.gov/gridpoints/TOP/32,81",
+    "observationStations": "https://api.weather.gov/gridpoints/TOP/32,81/stations",
+    "forecastZone": "https://api.weather.gov/zones/forecast/KSZ009",
+    "county": "https://api.weather.gov/zones/county/KSC201",
+    "timeZone": "America/Chicago",
+    "relativeLocation": {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-97.0867936, 39.6792898]
+      },
+      "properties": {
+        "city": "Linn",
+        "state": "KS",
+        "distance": {
+          "unitCode": "wmoUnit:m",
+          "value": 6745.3279758024
+        },
+        "bearing": {
+          "unitCode": "wmoUnit:degree_(angle)",
+          "value": 358
+        }
+      }
+    }
+  }
+}

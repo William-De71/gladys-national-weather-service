@@ -1,0 +1,8 @@
+node_modules
+data
+coverage
+*.log
+.DS_Store
+
+# Fichier temporaire produit par le workflow Release
+release-notes.md

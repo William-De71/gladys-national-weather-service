@@ -1,0 +1,22 @@
+{
+  "features": [
+    {
+      "properties": {
+        "stationIdentifier": "KMYZ",
+        "name": "Marysville Municipal Airport"
+      }
+    },
+    {
+      "properties": {
+        "stationIdentifier": "KCNK",
+        "name": "Concordia, Blosser Municipal Airport"
+      }
+    },
+    {
+      "properties": {
+        "stationIdentifier": "KHJH",
+        "name": "Hebron, Hebron Municipal Airport"
+      }
+    }
+  ]
+}

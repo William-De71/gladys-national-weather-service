@@ -1,0 +1,1402 @@
+{
+  "manifest_version": 1,
+  "type": "weather",
+  "name": "National Weather Service",
+  "description": {
+    "en": "Official US forecasts and alerts from the National Weather Service.",
+    "fr": "Prévisions et alertes officielles du National Weather Service (États-Unis)."
+  },
+  "version": "0.1.0",
+  "docker_image": "ghcr.io/william-de71/gladys-nws:0.1.0",
+  "gladys_version": ">=5.1.1",
+  "categories": ["environment"],
+  "cover_image": "https://raw.githubusercontent.com/William-De71/gladys-nws/main/cover.jpg",
+  "transports": ["cloud"],
+  "location": true,
+  "config_schema": [
+    {
+      "key": "intro",
+      "type": "section",
+      "label": {
+        "en": "Ready to use",
+        "fr": "Prêt à l'emploi"
+      },
+      "description": {
+        "en": "Forecasts and alerts work with no configuration: the National Weather Service API is free and needs no key. It covers the United States and its territories only — a house elsewhere gets its weather from another provider.",
+        "fr": "Les prévisions et les alertes fonctionnent sans configuration : l'API du National Weather Service est gratuite et sans clé. Elle ne couvre que les États-Unis et leurs territoires — une maison située ailleurs reçoit sa météo d'un autre fournisseur."
+      },
+      "links": [
+        {
+          "url": "https://www.weather.gov/documentation/services-web-api",
+          "label": {
+            "en": "NWS API documentation",
+            "fr": "Documentation de l'API NWS"
+          }
+        }
+      ]
+    },
+    {
+      "key": "contact",
+      "type": "string",
+      "label": {
+        "en": "Contact email (optional)",
+        "fr": "Email de contact (optionnel)"
+      },
+      "description": {
+        "en": "Added to the identification the NWS requires from every application, so it can reach you before blocking traffic it finds abusive. Never shared with anyone else.",
+        "fr": "Ajouté à l'identification que le NWS exige de chaque application, pour qu'il puisse vous prévenir avant de bloquer un trafic qu'il jugerait abusif. Jamais transmis à personne d'autre."
+      },
+      "required": false,
+      "placeholder": {
+        "en": "me@example.com",
+        "fr": "moi@exemple.fr"
+      }
+    },
+    {
+      "key": "cache_duration",
+      "type": "number",
+      "label": {
+        "en": "Cache duration (s)",
+        "fr": "Durée du cache (s)"
+      },
+      "description": {
+        "en": "In seconds, between 0 and 3600. How long a forecast is reused before calling the NWS again. The NWS refreshes its forecasts about once an hour: the default of 600 (10 min) costs no freshness. Set to 0 to always call the API. Alerts are not affected: they are checked on their own schedule.",
+        "fr": "En secondes, entre 0 et 3600. Durée pendant laquelle une prévision est réutilisée avant de rappeler le NWS. Le NWS met à jour ses prévisions environ une fois par heure : la valeur par défaut de 600 (10 min) ne fait rien perdre en fraîcheur. Mettre 0 pour toujours appeler l'API. Les alertes ne sont pas concernées : elles sont vérifiées selon leur propre rythme."
+      },
+      "required": false,
+      "default": 600,
+      "min": 0,
+      "max": 3600
+    },
+    {
+      "key": "alert_check_interval",
+      "type": "number",
+      "label": {
+        "en": "Alert check interval (s)",
+        "fr": "Intervalle de vérification des alertes (s)"
+      },
+      "description": {
+        "en": "In seconds, between 30 and 900. How often the official alerts of your houses are checked, for the scene triggers and the alerts widget. A Tornado Warning lasts about 30 minutes: the default of 60 s fires your scenes within a minute of its issuance.",
+        "fr": "En secondes, entre 30 et 900. Fréquence de vérification des alertes officielles de vos maisons, pour les déclencheurs de scène et le widget des alertes. Une alerte tornade dure environ 30 minutes : la valeur par défaut de 60 s déclenche vos scènes moins d'une minute après son émission."
+      },
+      "required": false,
+      "default": 60,
+      "min": 30,
+      "max": 900
+    }
+  ],
+  "scene_triggers": [
+    {
+      "key": "alert_issued",
+      "label": {
+        "en": "NWS alert issued",
+        "fr": "Alerte NWS émise"
+      },
+      "description": {
+        "en": "A new watch, warning or advisory covers the house. Its updates do not fire again. Checked every minute by default.",
+        "fr": "Une nouvelle veille, alerte ou un avis du NWS couvre la maison. Ses mises à jour ne redéclenchent pas. Vérifié chaque minute par défaut."
+      },
+      "fields": [
+        {
+          "key": "house",
+          "type": "string",
+          "label": {
+            "en": "House",
+            "fr": "Maison"
+          },
+          "description": {
+            "en": "Name of the house, exactly as shown in Gladys. Leave empty for every house.",
+            "fr": "Nom de la maison, exactement comme dans Gladys. Laissez vide pour toutes les maisons."
+          },
+          "required": false
+        },
+        {
+          "key": "category",
+          "type": "multi_select",
+          "label": {
+            "en": "Kind of alert",
+            "fr": "Type d'alerte"
+          },
+          "description": {
+            "en": "Leave empty for every kind.",
+            "fr": "Laissez vide pour tous les types."
+          },
+          "required": false,
+          "options": [
+            {
+              "value": "tornado",
+              "label": {
+                "en": "Tornado",
+                "fr": "Tornade"
+              }
+            },
+            {
+              "value": "hurricane",
+              "label": {
+                "en": "Hurricane / tropical storm",
+                "fr": "Ouragan / tempête tropicale"
+              }
+            },
+            {
+              "value": "thunderstorm",
+              "label": {
+                "en": "Severe thunderstorm",
+                "fr": "Orage violent"
+              }
+            },
+            {
+              "value": "flood",
+              "label": {
+                "en": "Flood",
+                "fr": "Inondation"
+              }
+            },
+            {
+              "value": "winter",
+              "label": {
+                "en": "Winter storm, snow, ice",
+                "fr": "Tempête hivernale, neige, verglas"
+              }
+            },
+            {
+              "value": "cold",
+              "label": {
+                "en": "Cold, freeze, wind chill",
+                "fr": "Froid, gel, refroidissement éolien"
+              }
+            },
+            {
+              "value": "heat",
+              "label": {
+                "en": "Heat",
+                "fr": "Chaleur"
+              }
+            },
+            {
+              "value": "wind",
+              "label": {
+                "en": "Wind",
+                "fr": "Vent"
+              }
+            },
+            {
+              "value": "fire",
+              "label": {
+                "en": "Fire weather (red flag)",
+                "fr": "Risque d'incendie (red flag)"
+              }
+            },
+            {
+              "value": "fog",
+              "label": {
+                "en": "Fog",
+                "fr": "Brouillard"
+              }
+            },
+            {
+              "value": "air",
+              "label": {
+                "en": "Air quality, smoke, dust",
+                "fr": "Qualité de l'air, fumée, poussière"
+              }
+            },
+            {
+              "value": "marine",
+              "label": {
+                "en": "Marine, surf, rip currents",
+                "fr": "Mer, houle, courants"
+              }
+            },
+            {
+              "value": "other",
+              "label": {
+                "en": "Other",
+                "fr": "Autre"
+              }
+            }
+          ]
+        },
+        {
+          "key": "level",
+          "type": "multi_select",
+          "label": {
+            "en": "Level",
+            "fr": "Niveau"
+          },
+          "description": {
+            "en": "Leave empty for every level. A Watch means conditions are favorable; a Warning means the hazard is happening or imminent.",
+            "fr": "Laissez vide pour tous les niveaux. Une « Watch » signifie que les conditions sont réunies ; un « Warning » que le phénomène est en cours ou imminent."
+          },
+          "required": false,
+          "options": [
+            {
+              "value": "warning",
+              "label": {
+                "en": "Warning (take action)",
+                "fr": "Warning – alerte (agir)"
+              }
+            },
+            {
+              "value": "watch",
+              "label": {
+                "en": "Watch (be prepared)",
+                "fr": "Watch – veille (se préparer)"
+              }
+            },
+            {
+              "value": "advisory",
+              "label": {
+                "en": "Advisory",
+                "fr": "Advisory – avis"
+              }
+            },
+            {
+              "value": "statement",
+              "label": {
+                "en": "Statement",
+                "fr": "Statement – bulletin"
+              }
+            },
+            {
+              "value": "other",
+              "label": {
+                "en": "Other notice",
+                "fr": "Autre information"
+              }
+            }
+          ]
+        },
+        {
+          "key": "severity",
+          "type": "multi_select",
+          "label": {
+            "en": "Severity",
+            "fr": "Sévérité"
+          },
+          "description": {
+            "en": "Official CAP severity. Leave empty for any.",
+            "fr": "Sévérité officielle (CAP). Laissez vide pour toutes."
+          },
+          "required": false,
+          "options": [
+            {
+              "value": "extreme",
+              "label": {
+                "en": "Extreme",
+                "fr": "Extrême"
+              }
+            },
+            {
+              "value": "severe",
+              "label": {
+                "en": "Severe",
+                "fr": "Sévère"
+              }
+            },
+            {
+              "value": "moderate",
+              "label": {
+                "en": "Moderate",
+                "fr": "Modéré"
+              }
+            },
+            {
+              "value": "minor",
+              "label": {
+                "en": "Minor",
+                "fr": "Mineur"
+              }
+            },
+            {
+              "value": "unknown",
+              "label": {
+                "en": "Unknown",
+                "fr": "Inconnu"
+              }
+            }
+          ]
+        }
+      ],
+      "variables": [
+        {
+          "key": "house",
+          "type": "string",
+          "label": {
+            "en": "House",
+            "fr": "Maison"
+          }
+        },
+        {
+          "key": "event",
+          "type": "string",
+          "label": {
+            "en": "Event (e.g. Tornado Warning)",
+            "fr": "Événement (ex. Tornado Warning)"
+          }
+        },
+        {
+          "key": "category",
+          "type": "string",
+          "label": {
+            "en": "Kind (key)",
+            "fr": "Type (clé)"
+          }
+        },
+        {
+          "key": "category_label",
+          "type": "string",
+          "label": {
+            "en": "Kind",
+            "fr": "Type"
+          }
+        },
+        {
+          "key": "level",
+          "type": "string",
+          "label": {
+            "en": "Level (warning, watch, advisory, statement, other)",
+            "fr": "Niveau (warning, watch, advisory, statement, other)"
+          }
+        },
+        {
+          "key": "level_label",
+          "type": "string",
+          "label": {
+            "en": "Level label",
+            "fr": "Libellé du niveau"
+          }
+        },
+        {
+          "key": "severity",
+          "type": "string",
+          "label": {
+            "en": "Severity (extreme, severe, moderate, minor, unknown)",
+            "fr": "Sévérité (extreme, severe, moderate, minor, unknown)"
+          }
+        },
+        {
+          "key": "urgency",
+          "type": "string",
+          "label": {
+            "en": "Urgency",
+            "fr": "Urgence"
+          }
+        },
+        {
+          "key": "certainty",
+          "type": "string",
+          "label": {
+            "en": "Certainty",
+            "fr": "Certitude"
+          }
+        },
+        {
+          "key": "headline",
+          "type": "string",
+          "label": {
+            "en": "Headline",
+            "fr": "Titre"
+          }
+        },
+        {
+          "key": "area",
+          "type": "string",
+          "label": {
+            "en": "Area",
+            "fr": "Zone"
+          }
+        },
+        {
+          "key": "onset",
+          "type": "string",
+          "label": {
+            "en": "Start (local time)",
+            "fr": "Début (heure locale)"
+          }
+        },
+        {
+          "key": "ends",
+          "type": "string",
+          "label": {
+            "en": "End (local time)",
+            "fr": "Fin (heure locale)"
+          }
+        },
+        {
+          "key": "instruction",
+          "type": "string",
+          "label": {
+            "en": "Instructions",
+            "fr": "Consignes"
+          }
+        },
+        {
+          "key": "description",
+          "type": "string",
+          "label": {
+            "en": "Description",
+            "fr": "Description"
+          }
+        },
+        {
+          "key": "summary",
+          "type": "string",
+          "label": {
+            "en": "Summary",
+            "fr": "Résumé"
+          },
+          "description": {
+            "en": "A sentence ready to put in a message.",
+            "fr": "Une phrase prête à mettre dans un message."
+          }
+        }
+      ]
+    },
+    {
+      "key": "alert_ended",
+      "label": {
+        "en": "NWS alert ended",
+        "fr": "Fin d'une alerte NWS"
+      },
+      "description": {
+        "en": "A watch, warning or advisory covering the house expired or was cancelled.",
+        "fr": "Une veille, alerte ou un avis du NWS couvrant la maison a expiré ou a été annulé."
+      },
+      "fields": [
+        {
+          "key": "house",
+          "type": "string",
+          "label": {
+            "en": "House",
+            "fr": "Maison"
+          },
+          "description": {
+            "en": "Name of the house, exactly as shown in Gladys. Leave empty for every house.",
+            "fr": "Nom de la maison, exactement comme dans Gladys. Laissez vide pour toutes les maisons."
+          },
+          "required": false
+        },
+        {
+          "key": "category",
+          "type": "multi_select",
+          "label": {
+            "en": "Kind of alert",
+            "fr": "Type d'alerte"
+          },
+          "description": {
+            "en": "Leave empty for every kind.",
+            "fr": "Laissez vide pour tous les types."
+          },
+          "required": false,
+          "options": [
+            {
+              "value": "tornado",
+              "label": {
+                "en": "Tornado",
+                "fr": "Tornade"
+              }
+            },
+            {
+              "value": "hurricane",
+              "label": {
+                "en": "Hurricane / tropical storm",
+                "fr": "Ouragan / tempête tropicale"
+              }
+            },
+            {
+              "value": "thunderstorm",
+              "label": {
+                "en": "Severe thunderstorm",
+                "fr": "Orage violent"
+              }
+            },
+            {
+              "value": "flood",
+              "label": {
+                "en": "Flood",
+                "fr": "Inondation"
+              }
+            },
+            {
+              "value": "winter",
+              "label": {
+                "en": "Winter storm, snow, ice",
+                "fr": "Tempête hivernale, neige, verglas"
+              }
+            },
+            {
+              "value": "cold",
+              "label": {
+                "en": "Cold, freeze, wind chill",
+                "fr": "Froid, gel, refroidissement éolien"
+              }
+            },
+            {
+              "value": "heat",
+              "label": {
+                "en": "Heat",
+                "fr": "Chaleur"
+              }
+            },
+            {
+              "value": "wind",
+              "label": {
+                "en": "Wind",
+                "fr": "Vent"
+              }
+            },
+            {
+              "value": "fire",
+              "label": {
+                "en": "Fire weather (red flag)",
+                "fr": "Risque d'incendie (red flag)"
+              }
+            },
+            {
+              "value": "fog",
+              "label": {
+                "en": "Fog",
+                "fr": "Brouillard"
+              }
+            },
+            {
+              "value": "air",
+              "label": {
+                "en": "Air quality, smoke, dust",
+                "fr": "Qualité de l'air, fumée, poussière"
+              }
+            },
+            {
+              "value": "marine",
+              "label": {
+                "en": "Marine, surf, rip currents",
+                "fr": "Mer, houle, courants"
+              }
+            },
+            {
+              "value": "other",
+              "label": {
+                "en": "Other",
+                "fr": "Autre"
+              }
+            }
+          ]
+        },
+        {
+          "key": "level",
+          "type": "multi_select",
+          "label": {
+            "en": "Level",
+            "fr": "Niveau"
+          },
+          "description": {
+            "en": "Leave empty for every level. A Watch means conditions are favorable; a Warning means the hazard is happening or imminent.",
+            "fr": "Laissez vide pour tous les niveaux. Une « Watch » signifie que les conditions sont réunies ; un « Warning » que le phénomène est en cours ou imminent."
+          },
+          "required": false,
+          "options": [
+            {
+              "value": "warning",
+              "label": {
+                "en": "Warning (take action)",
+                "fr": "Warning – alerte (agir)"
+              }
+            },
+            {
+              "value": "watch",
+              "label": {
+                "en": "Watch (be prepared)",
+                "fr": "Watch – veille (se préparer)"
+              }
+            },
+            {
+              "value": "advisory",
+              "label": {
+                "en": "Advisory",
+                "fr": "Advisory – avis"
+              }
+            },
+            {
+              "value": "statement",
+              "label": {
+                "en": "Statement",
+                "fr": "Statement – bulletin"
+              }
+            },
+            {
+              "value": "other",
+              "label": {
+                "en": "Other notice",
+                "fr": "Autre information"
+              }
+            }
+          ]
+        }
+      ],
+      "variables": [
+        {
+          "key": "house",
+          "type": "string",
+          "label": {
+            "en": "House",
+            "fr": "Maison"
+          }
+        },
+        {
+          "key": "event",
+          "type": "string",
+          "label": {
+            "en": "Event",
+            "fr": "Événement"
+          }
+        },
+        {
+          "key": "category",
+          "type": "string",
+          "label": {
+            "en": "Kind (key)",
+            "fr": "Type (clé)"
+          }
+        },
+        {
+          "key": "category_label",
+          "type": "string",
+          "label": {
+            "en": "Kind",
+            "fr": "Type"
+          }
+        },
+        {
+          "key": "level",
+          "type": "string",
+          "label": {
+            "en": "Level",
+            "fr": "Niveau"
+          }
+        },
+        {
+          "key": "level_label",
+          "type": "string",
+          "label": {
+            "en": "Level label",
+            "fr": "Libellé du niveau"
+          }
+        },
+        {
+          "key": "severity",
+          "type": "string",
+          "label": {
+            "en": "Severity",
+            "fr": "Sévérité"
+          }
+        },
+        {
+          "key": "area",
+          "type": "string",
+          "label": {
+            "en": "Area",
+            "fr": "Zone"
+          }
+        },
+        {
+          "key": "summary",
+          "type": "string",
+          "label": {
+            "en": "Summary",
+            "fr": "Résumé"
+          },
+          "description": {
+            "en": "A sentence ready to put in a message.",
+            "fr": "Une phrase prête à mettre dans un message."
+          }
+        }
+      ]
+    }
+  ],
+  "scene_actions": [
+    {
+      "key": "get_alerts",
+      "label": {
+        "en": "Get the NWS alerts",
+        "fr": "Obtenir les alertes NWS"
+      },
+      "description": {
+        "en": "The watches, warnings and advisories in force at the house, the most serious first.",
+        "fr": "Les veilles, alertes et avis en cours pour la maison, le plus grave en premier."
+      },
+      "timeout_seconds": 30,
+      "fields": [
+        {
+          "key": "house",
+          "type": "string",
+          "label": {
+            "en": "House",
+            "fr": "Maison"
+          },
+          "description": {
+            "en": "Name of the house, as shown in Gladys. Leave empty for the first house with a location.",
+            "fr": "Nom de la maison, tel qu'affiché dans Gladys. Laissez vide pour la première maison localisée."
+          },
+          "required": false
+        }
+      ],
+      "outputs": [
+        {
+          "key": "count",
+          "type": "number",
+          "label": {
+            "en": "Number of alerts",
+            "fr": "Nombre d'alertes"
+          }
+        },
+        {
+          "key": "has_alert",
+          "type": "boolean",
+          "label": {
+            "en": "Alert in force",
+            "fr": "Alerte en cours"
+          }
+        },
+        {
+          "key": "has_warning",
+          "type": "boolean",
+          "label": {
+            "en": "Warning in force",
+            "fr": "Warning en cours"
+          }
+        },
+        {
+          "key": "warnings",
+          "type": "number",
+          "label": {
+            "en": "Warnings",
+            "fr": "Warnings"
+          }
+        },
+        {
+          "key": "watches",
+          "type": "number",
+          "label": {
+            "en": "Watches",
+            "fr": "Watches"
+          }
+        },
+        {
+          "key": "advisories",
+          "type": "number",
+          "label": {
+            "en": "Advisories",
+            "fr": "Advisories"
+          }
+        },
+        {
+          "key": "events",
+          "type": "string",
+          "label": {
+            "en": "Events",
+            "fr": "Événements"
+          }
+        },
+        {
+          "key": "top_event",
+          "type": "string",
+          "label": {
+            "en": "Most serious: event",
+            "fr": "Plus grave : événement"
+          }
+        },
+        {
+          "key": "top_category",
+          "type": "string",
+          "label": {
+            "en": "Most serious: kind (key)",
+            "fr": "Plus grave : type (clé)"
+          }
+        },
+        {
+          "key": "top_category_label",
+          "type": "string",
+          "label": {
+            "en": "Most serious: kind",
+            "fr": "Plus grave : type"
+          }
+        },
+        {
+          "key": "top_level",
+          "type": "string",
+          "label": {
+            "en": "Most serious: level",
+            "fr": "Plus grave : niveau"
+          }
+        },
+        {
+          "key": "top_level_label",
+          "type": "string",
+          "label": {
+            "en": "Most serious: level label",
+            "fr": "Plus grave : libellé du niveau"
+          }
+        },
+        {
+          "key": "top_severity",
+          "type": "string",
+          "label": {
+            "en": "Most serious: severity",
+            "fr": "Plus grave : sévérité"
+          }
+        },
+        {
+          "key": "top_severity_label",
+          "type": "string",
+          "label": {
+            "en": "Most serious: severity label",
+            "fr": "Plus grave : libellé de la sévérité"
+          }
+        },
+        {
+          "key": "top_headline",
+          "type": "string",
+          "label": {
+            "en": "Most serious: headline",
+            "fr": "Plus grave : titre"
+          }
+        },
+        {
+          "key": "top_instruction",
+          "type": "string",
+          "label": {
+            "en": "Most serious: instructions",
+            "fr": "Plus grave : consignes"
+          }
+        },
+        {
+          "key": "top_ends",
+          "type": "string",
+          "label": {
+            "en": "Most serious: end (local time)",
+            "fr": "Plus grave : fin (heure locale)"
+          }
+        },
+        {
+          "key": "summary",
+          "type": "string",
+          "label": {
+            "en": "Summary",
+            "fr": "Résumé"
+          },
+          "description": {
+            "en": "A sentence ready to put in a message.",
+            "fr": "Une phrase prête à mettre dans un message."
+          }
+        }
+      ]
+    },
+    {
+      "key": "get_forecast",
+      "label": {
+        "en": "Get the NWS forecast of a day",
+        "fr": "Obtenir la prévision NWS d'un jour"
+      },
+      "description": {
+        "en": "High, low, sky, chance of rain and wind of one day, with the forecaster's text.",
+        "fr": "Maximum, minimum, ciel, risque de pluie et vent d'une journée, avec le texte du prévisionniste."
+      },
+      "timeout_seconds": 30,
+      "fields": [
+        {
+          "key": "house",
+          "type": "string",
+          "label": {
+            "en": "House",
+            "fr": "Maison"
+          },
+          "description": {
+            "en": "Name of the house, as shown in Gladys. Leave empty for the first house with a location.",
+            "fr": "Nom de la maison, tel qu'affiché dans Gladys. Laissez vide pour la première maison localisée."
+          },
+          "required": false
+        },
+        {
+          "key": "day",
+          "type": "select",
+          "label": {
+            "en": "Day",
+            "fr": "Jour"
+          },
+          "required": false,
+          "default": "0",
+          "options": [
+            {
+              "value": "0",
+              "label": {
+                "en": "Today",
+                "fr": "Aujourd'hui"
+              }
+            },
+            {
+              "value": "1",
+              "label": {
+                "en": "Tomorrow",
+                "fr": "Demain"
+              }
+            },
+            {
+              "value": "2",
+              "label": {
+                "en": "In 2 days",
+                "fr": "Dans 2 jours"
+              }
+            },
+            {
+              "value": "3",
+              "label": {
+                "en": "In 3 days",
+                "fr": "Dans 3 jours"
+              }
+            },
+            {
+              "value": "4",
+              "label": {
+                "en": "In 4 days",
+                "fr": "Dans 4 jours"
+              }
+            },
+            {
+              "value": "5",
+              "label": {
+                "en": "In 5 days",
+                "fr": "Dans 5 jours"
+              }
+            },
+            {
+              "value": "6",
+              "label": {
+                "en": "In 6 days",
+                "fr": "Dans 6 jours"
+              }
+            }
+          ]
+        }
+      ],
+      "outputs": [
+        {
+          "key": "date",
+          "type": "string",
+          "label": {
+            "en": "Date (YYYY-MM-DD)",
+            "fr": "Date (AAAA-MM-JJ)"
+          }
+        },
+        {
+          "key": "name",
+          "type": "string",
+          "label": {
+            "en": "Period name",
+            "fr": "Nom de la période"
+          }
+        },
+        {
+          "key": "condition",
+          "type": "string",
+          "label": {
+            "en": "Sky (key)",
+            "fr": "Ciel (clé)"
+          }
+        },
+        {
+          "key": "condition_label",
+          "type": "string",
+          "label": {
+            "en": "Sky",
+            "fr": "Ciel"
+          }
+        },
+        {
+          "key": "short_forecast",
+          "type": "string",
+          "label": {
+            "en": "NWS short forecast",
+            "fr": "Prévision courte NWS"
+          }
+        },
+        {
+          "key": "temperature_max",
+          "type": "number",
+          "label": {
+            "en": "High",
+            "fr": "Maximum"
+          }
+        },
+        {
+          "key": "temperature_min",
+          "type": "number",
+          "label": {
+            "en": "Low",
+            "fr": "Minimum"
+          }
+        },
+        {
+          "key": "precipitation_probability",
+          "type": "number",
+          "label": {
+            "en": "Chance of rain (%)",
+            "fr": "Risque de pluie (%)"
+          }
+        },
+        {
+          "key": "wind_speed",
+          "type": "number",
+          "label": {
+            "en": "Wind (km/h or mph)",
+            "fr": "Vent (km/h ou mph)"
+          }
+        },
+        {
+          "key": "wind_direction",
+          "type": "string",
+          "label": {
+            "en": "Wind direction",
+            "fr": "Direction du vent"
+          }
+        },
+        {
+          "key": "detailed_forecast",
+          "type": "string",
+          "label": {
+            "en": "Forecast text, day (English)",
+            "fr": "Texte de la prévision, jour (anglais)"
+          }
+        },
+        {
+          "key": "detailed_forecast_night",
+          "type": "string",
+          "label": {
+            "en": "Forecast text, night (English)",
+            "fr": "Texte de la prévision, nuit (anglais)"
+          }
+        },
+        {
+          "key": "summary",
+          "type": "string",
+          "label": {
+            "en": "Summary",
+            "fr": "Résumé"
+          },
+          "description": {
+            "en": "A sentence ready to put in a message.",
+            "fr": "Une phrase prête à mettre dans un message."
+          }
+        }
+      ]
+    },
+    {
+      "key": "get_current",
+      "label": {
+        "en": "Get the current NWS conditions",
+        "fr": "Obtenir les conditions actuelles NWS"
+      },
+      "description": {
+        "en": "The conditions measured at the nearest weather station, or forecast when it has not reported recently.",
+        "fr": "Les conditions mesurées à la station météo la plus proche, ou prévues quand elle n'a rien transmis récemment."
+      },
+      "timeout_seconds": 30,
+      "fields": [
+        {
+          "key": "house",
+          "type": "string",
+          "label": {
+            "en": "House",
+            "fr": "Maison"
+          },
+          "description": {
+            "en": "Name of the house, as shown in Gladys. Leave empty for the first house with a location.",
+            "fr": "Nom de la maison, tel qu'affiché dans Gladys. Laissez vide pour la première maison localisée."
+          },
+          "required": false
+        }
+      ],
+      "outputs": [
+        {
+          "key": "temperature",
+          "type": "number",
+          "label": {
+            "en": "Temperature",
+            "fr": "Température"
+          }
+        },
+        {
+          "key": "apparent_temperature",
+          "type": "number",
+          "label": {
+            "en": "Feels like",
+            "fr": "Ressenti"
+          }
+        },
+        {
+          "key": "humidity",
+          "type": "number",
+          "label": {
+            "en": "Humidity (%)",
+            "fr": "Humidité (%)"
+          }
+        },
+        {
+          "key": "dew_point",
+          "type": "number",
+          "label": {
+            "en": "Dew point",
+            "fr": "Point de rosée"
+          }
+        },
+        {
+          "key": "pressure",
+          "type": "number",
+          "label": {
+            "en": "Pressure (hPa)",
+            "fr": "Pression (hPa)"
+          }
+        },
+        {
+          "key": "wind_speed",
+          "type": "number",
+          "label": {
+            "en": "Wind (km/h or mph)",
+            "fr": "Vent (km/h ou mph)"
+          }
+        },
+        {
+          "key": "wind_gust",
+          "type": "number",
+          "label": {
+            "en": "Gusts (km/h or mph)",
+            "fr": "Rafales (km/h ou mph)"
+          }
+        },
+        {
+          "key": "wind_direction",
+          "type": "string",
+          "label": {
+            "en": "Wind direction",
+            "fr": "Direction du vent"
+          }
+        },
+        {
+          "key": "visibility",
+          "type": "number",
+          "label": {
+            "en": "Visibility (km or mi)",
+            "fr": "Visibilité (km ou mi)"
+          }
+        },
+        {
+          "key": "condition",
+          "type": "string",
+          "label": {
+            "en": "Sky (key)",
+            "fr": "Ciel (clé)"
+          }
+        },
+        {
+          "key": "condition_label",
+          "type": "string",
+          "label": {
+            "en": "Sky",
+            "fr": "Ciel"
+          }
+        },
+        {
+          "key": "observed",
+          "type": "boolean",
+          "label": {
+            "en": "Measured by a station",
+            "fr": "Mesuré par une station"
+          }
+        },
+        {
+          "key": "station",
+          "type": "string",
+          "label": {
+            "en": "Station",
+            "fr": "Station"
+          }
+        },
+        {
+          "key": "observed_at",
+          "type": "string",
+          "label": {
+            "en": "Observed at (local time)",
+            "fr": "Relevé à (heure locale)"
+          }
+        },
+        {
+          "key": "summary",
+          "type": "string",
+          "label": {
+            "en": "Summary",
+            "fr": "Résumé"
+          },
+          "description": {
+            "en": "A sentence ready to put in a message.",
+            "fr": "Une phrase prête à mettre dans un message."
+          }
+        }
+      ]
+    }
+  ],
+  "widgets": [
+    {
+      "key": "alerts",
+      "label": {
+        "en": "NWS alerts",
+        "fr": "Alertes NWS"
+      },
+      "description": {
+        "en": "Watches, warnings and advisories in force, with their full text.",
+        "fr": "Veilles, alertes et avis en cours, avec leur texte complet."
+      },
+      "icon": "alert-triangle",
+      "settings": [
+        {
+          "key": "house",
+          "type": "string",
+          "label": {
+            "en": "House",
+            "fr": "Maison"
+          },
+          "description": {
+            "en": "Name of the house, as shown in Gladys. Leave empty for the first house with a location.",
+            "fr": "Nom de la maison, tel qu'affiché dans Gladys. Laissez vide pour la première maison localisée."
+          },
+          "required": false
+        }
+      ]
+    },
+    {
+      "key": "forecast",
+      "label": {
+        "en": "NWS text forecast",
+        "fr": "Prévision NWS détaillée"
+      },
+      "description": {
+        "en": "The forecaster's narrative, period by period, with the NWS icons.",
+        "fr": "Le texte du prévisionniste, période par période, avec les icônes NWS."
+      },
+      "icon": "file-text",
+      "settings": [
+        {
+          "key": "house",
+          "type": "string",
+          "label": {
+            "en": "House",
+            "fr": "Maison"
+          },
+          "description": {
+            "en": "Name of the house, as shown in Gladys. Leave empty for the first house with a location.",
+            "fr": "Nom de la maison, tel qu'affiché dans Gladys. Laissez vide pour la première maison localisée."
+          },
+          "required": false
+        },
+        {
+          "key": "show_icons",
+          "type": "boolean",
+          "label": {
+            "en": "Show the icons",
+            "fr": "Afficher les icônes"
+          },
+          "default": true
+        }
+      ]
+    },
+    {
+      "key": "hourly",
+      "label": {
+        "en": "NWS next hours",
+        "fr": "NWS heure par heure"
+      },
+      "description": {
+        "en": "Temperature, chance of rain or wind of the next hours, as a curve.",
+        "fr": "Température, risque de pluie ou vent des prochaines heures, en courbe."
+      },
+      "icon": "trending-up",
+      "settings": [
+        {
+          "key": "house",
+          "type": "string",
+          "label": {
+            "en": "House",
+            "fr": "Maison"
+          },
+          "description": {
+            "en": "Name of the house, as shown in Gladys. Leave empty for the first house with a location.",
+            "fr": "Nom de la maison, tel qu'affiché dans Gladys. Laissez vide pour la première maison localisée."
+          },
+          "required": false
+        },
+        {
+          "key": "metric",
+          "type": "select",
+          "label": {
+            "en": "Show",
+            "fr": "Afficher"
+          },
+          "default": "temperature",
+          "options": [
+            {
+              "value": "temperature",
+              "label": {
+                "en": "Temperature and feels like",
+                "fr": "Température et ressenti"
+              }
+            },
+            {
+              "value": "precipitation",
+              "label": {
+                "en": "Chance of rain",
+                "fr": "Risque de pluie"
+              }
+            },
+            {
+              "value": "wind",
+              "label": {
+                "en": "Wind and gusts",
+                "fr": "Vent et rafales"
+              }
+            }
+          ]
+        },
+        {
+          "key": "hours",
+          "type": "select",
+          "label": {
+            "en": "Period",
+            "fr": "Période"
+          },
+          "default": "24",
+          "options": [
+            {
+              "value": "12",
+              "label": {
+                "en": "12 hours",
+                "fr": "12 heures"
+              }
+            },
+            {
+              "value": "24",
+              "label": {
+                "en": "24 hours",
+                "fr": "24 heures"
+              }
+            },
+            {
+              "value": "48",
+              "label": {
+                "en": "48 hours",
+                "fr": "48 heures"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

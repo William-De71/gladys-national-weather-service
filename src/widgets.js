@@ -1,0 +1,705 @@
+// -----------------------------------------------------------------------------
+// Dashboard widgets of the National Weather Service integration.
+//
+// The core weather widget already shows the forecast this integration
+// provides (current conditions, hours, days, alert badges). The widgets add
+// what only the NWS has, or what that generic card cannot show:
+//
+//   - `alerts`   the watches, warnings and advisories in force: counters by
+//                level, then each alert with its full text and instructions
+//                in the detail panel. Nudged by the alert watcher, so a new
+//                Tornado Warning reaches a wall tablet within seconds;
+//   - `forecast` the NWS narrative forecast, period by period ("Tonight",
+//                "Saturday"…), with the NWS icons and the forecaster's text;
+//   - `hourly`   the next 12 to 48 hours as a curve: temperature and feels
+//                like, chance of rain, or wind and gusts, with the extremes
+//                annotated.
+//
+// The content is built per user language and unit system (the core caches it
+// per variant). The NWS writes in English only: its own texts (event names,
+// narratives, alert bodies) stay in English, everything around them follows
+// the language of the user.
+//
+// Icons: the NWS serves PNG icons per period. Their URL is turned into an
+// image key that encodes it entirely ("nws-day-tsraqhi-40"), so the image
+// handler can rebuild the URL from the key alone — after a restart too —
+// and can only ever fetch an NWS icon, never an arbitrary URL.
+// -----------------------------------------------------------------------------
+
+import { conditionLabel, parseIcon, readCondition, ICON_CONDITIONS } from './conditions.js';
+import { CATEGORY_LABELS, LEVEL_LABELS, countByLevel, localize } from './alerts.js';
+import { buildHour, upcomingPeriods } from './weather.js';
+import { readGrid } from './gridpoint.js';
+import { formatDayTime, formatTime, localDate, periodDate, weekdayName } from './time.js';
+import { displaySpeed, degreesToCompass, unitLabels } from './units.js';
+
+const WIDGETS = {
+  ALERTS: 'alerts',
+  FORECAST: 'forecast',
+  HOURLY: 'hourly',
+};
+
+const TTL_SECONDS = {
+  [WIDGETS.ALERTS]: 120,
+  [WIDGETS.FORECAST]: 900,
+  [WIDGETS.HOURLY]: 900,
+};
+
+const HOURLY_METRICS = ['temperature', 'precipitation', 'wind'];
+const HOURLY_SPANS = ['12', '24', '48'];
+const MAX_LIST_ITEMS = 8;
+const MAX_DESCRIPTION = 2000;
+// A chance of rain from which an hour counts as "rain expected".
+const RAIN_CHANCE_THRESHOLD = 30;
+
+const TEXTS = {
+  noAlertTitle: { en: 'No active alert', fr: 'Aucune alerte' },
+  noAlertBody: {
+    en: 'No watch, warning or advisory is in force for this location.',
+    fr: 'Aucune veille, alerte ni avis n’est en cours pour ce lieu.',
+  },
+  active: { en: 'Active alerts', fr: 'Alertes en cours' },
+  warnings: { en: 'Warnings', fr: 'Alertes' },
+  watches: { en: 'Watches', fr: 'Veilles' },
+  advisories: { en: 'Advisories', fr: 'Avis' },
+  until: { en: 'until', fr: 'jusqu’à' },
+  fullForecast: { en: 'Full forecast', fr: 'Prévisions complètes' },
+  outOfCoverage: {
+    en: 'This house is outside the National Weather Service coverage (United States only).',
+    fr: 'Cette maison est hors de la zone du National Weather Service (États-Unis uniquement).',
+  },
+  noHouse: {
+    en: 'No house of Gladys has a location: set it in the house settings.',
+    fr: 'Aucune maison de Gladys n’est localisée : renseignez sa position dans ses réglages.',
+  },
+  updated: { en: 'updated', fr: 'mis à jour à' },
+  high: { en: 'High', fr: 'Max' },
+  low: { en: 'Low', fr: 'Min' },
+  now: { en: 'Now', fr: 'Actuel' },
+  temperature: { en: 'Temperature', fr: 'Température' },
+  feelsLike: { en: 'Feels like', fr: 'Ressenti' },
+  rainChance: { en: 'Chance of rain', fr: 'Risque de pluie' },
+  maxChance: { en: 'Max chance', fr: 'Risque max' },
+  total: { en: 'Total', fr: 'Cumul' },
+  firstRain: { en: 'First rain', fr: '1re pluie' },
+  none: { en: 'None', fr: 'Aucune' },
+  wind: { en: 'Wind', fr: 'Vent' },
+  gusts: { en: 'Gusts', fr: 'Rafales' },
+  maxWind: { en: 'Max wind', fr: 'Vent max' },
+  maxGust: { en: 'Max gust', fr: 'Rafale max' },
+  direction: { en: 'Direction', fr: 'Direction' },
+  nextHours: { en: 'Next {n} hours', fr: '{n} prochaines heures' },
+  today: { en: 'Today', fr: 'Aujourd’hui' },
+  tonight: { en: 'Tonight', fr: 'Cette nuit' },
+  nightOf: { en: '{day} Night', fr: 'Nuit de {day}' },
+};
+
+/**
+ * @description Pick a text in the user's language (English fallback).
+ * @param {string} key - The TEXTS key.
+ * @param {string} language - The language.
+ * @param {object} [values] - `{name}` substitutions.
+ * @returns {string} The text.
+ * @example
+ * text('nextHours', 'fr', { n: 24 }); // -> '24 prochaines heures'
+ */
+function text(key, language, values = {}) {
+  const entry = TEXTS[key];
+  const template = entry[language] ?? entry.en;
+  return template.replace(/\{(\w+)\}/g, (_, name) => String(values[name] ?? ''));
+}
+
+const capitalize = (value) => value.charAt(0).toUpperCase() + value.slice(1);
+
+/**
+ * @description Truncate a text to a bound, with an ellipsis.
+ * @param {string} value - The text.
+ * @param {number} max - The bound in characters.
+ * @returns {string} The text.
+ * @example
+ * truncate('abcdef', 4); // -> 'abc…'
+ */
+function truncate(value, max) {
+  return value.length > max ? `${value.slice(0, max - 1)}…` : value;
+}
+
+/**
+ * @description The weather.gov forecast page of a location.
+ * @param {number} latitude - Latitude.
+ * @param {number} longitude - Longitude.
+ * @returns {string} The https URL.
+ * @example
+ * forecastPageUrl(39.7456, -97.0892);
+ */
+function forecastPageUrl(latitude, longitude) {
+  return `https://forecast.weather.gov/MapClick.php?lat=${latitude.toFixed(4)}&lon=${longitude.toFixed(4)}`;
+}
+
+// --- Icons --------------------------------------------------------------------
+
+const ICON_KEY_PREFIX = 'nws';
+const MAX_ICON_PARTS = 2;
+
+/**
+ * @description Turn an NWS icon URL into an image key encoding it whole:
+ * underscores become "q" (no NWS code contains a "q"), parts and chances are
+ * dash-separated.
+ * @param {string|null} url - The icon URL.
+ * @returns {string|null} The key, or null for an unknown icon.
+ * @example
+ * iconKey('https://api.weather.gov/icons/land/day/tsra_hi,40?size=medium'); // -> 'nws-day-tsraqhi-40'
+ */
+function iconKey(url) {
+  const icon = parseIcon(url);
+  if (icon === null || icon.parts.length > MAX_ICON_PARTS) {
+    return null;
+  }
+  if (!icon.parts.every((part) => part.code in ICON_CONDITIONS)) {
+    return null;
+  }
+  const tokens = icon.parts.flatMap((part) => [
+    part.code.replaceAll('_', 'q'),
+    ...(part.chance === null ? [] : [String(Math.round(part.chance))]),
+  ]);
+  return [ICON_KEY_PREFIX, icon.isDay ? 'day' : 'night', ...tokens].join('-');
+}
+
+/**
+ * @description Rebuild the icon path of an image key, validating every piece:
+ * only known NWS codes and chances from 0 to 100 come out of it.
+ * @param {string} key - The image key.
+ * @returns {string|null} The path after /icons/ ("land/day/tsra_hi,40"), or null.
+ * @example
+ * iconPathFromKey('nws-night-rainqshowers-30-tsra-60'); // -> 'land/night/rain_showers,30/tsra,60'
+ */
+function iconPathFromKey(key) {
+  const [prefix, timeOfDay, ...tokens] = String(key).split('-');
+  if (prefix !== ICON_KEY_PREFIX || (timeOfDay !== 'day' && timeOfDay !== 'night')) {
+    return null;
+  }
+  const parts = [];
+  for (const token of tokens) {
+    if (/^\d{1,3}$/.test(token)) {
+      const last = parts[parts.length - 1];
+      if (last === undefined || last.chance !== null || Number(token) > 100) {
+        return null;
+      }
+      last.chance = Number(token);
+    } else {
+      const code = token.replaceAll('q', '_');
+      if (!/^[a-z_]+$/.test(code) || !(code in ICON_CONDITIONS)) {
+        return null;
+      }
+      parts.push({ code, chance: null });
+    }
+  }
+  if (parts.length === 0 || parts.length > MAX_ICON_PARTS) {
+    return null;
+  }
+  const segments = parts.map(({ code, chance }) => (chance === null ? code : `${code},${chance}`));
+  return ['land', timeOfDay, ...segments].join('/');
+}
+
+// --- Empty and error states ---------------------------------------------------
+
+/**
+ * @description A content made of a single explanatory text.
+ * @param {string} message - The text.
+ * @param {number} ttl - The TTL in seconds.
+ * @returns {object} The content.
+ * @example
+ * messageContent('No house', 300);
+ */
+function messageContent(message, ttl) {
+  return {
+    version: 1,
+    ttl_seconds: ttl,
+    components: [{ type: 'text', variant: 'body', text: message }],
+  };
+}
+
+// --- Alerts widget ------------------------------------------------------------
+
+const SEVERITY_COLORS = {
+  extreme: 'danger',
+  severe: 'danger',
+  moderate: 'warning',
+  minor: 'info',
+  unknown: 'info',
+};
+
+/**
+ * @description Build the content of the `alerts` widget.
+ * @param {object} options - Options.
+ * @param {Array<object>} options.alerts - The readAlerts() alerts.
+ * @param {object} options.house - The house ({ name, latitude, longitude }).
+ * @param {string|null} options.place - "Linn, KS".
+ * @param {string|null} options.timeZone - The time zone of the house.
+ * @param {string} options.language - The user language.
+ * @returns {object} The widget content.
+ * @example
+ * buildAlertsWidget({ alerts, house, place: 'Linn, KS', timeZone, language: 'en' });
+ */
+function buildAlertsWidget({ alerts, house, place, timeZone, language }) {
+  const components = [
+    { type: 'text', variant: 'caption', text: place ? `${house.name} · ${place}` : house.name },
+  ];
+  if (alerts.length === 0) {
+    components.push(
+      {
+        type: 'value',
+        value: 0,
+        label: text('active', language),
+        icon: 'check-circle',
+        color: 'success',
+      },
+      { type: 'text', variant: 'body', text: text('noAlertBody', language) },
+    );
+  } else {
+    const counts = countByLevel(alerts);
+    components.push(
+      {
+        type: 'value',
+        value: counts.warning,
+        label: text('warnings', language),
+        icon: 'alert-octagon',
+        color: counts.warning > 0 ? 'danger' : 'neutral',
+      },
+      {
+        type: 'value',
+        value: counts.watch,
+        label: text('watches', language),
+        icon: 'alert-triangle',
+        color: counts.watch > 0 ? 'warning' : 'neutral',
+      },
+      {
+        type: 'value',
+        value: counts.advisory + counts.statement + counts.other,
+        label: text('advisories', language),
+        icon: 'info',
+        color: 'info',
+      },
+      {
+        type: 'card-list',
+        display: 'list',
+        items: alerts.slice(0, MAX_LIST_ITEMS).map((alert) => {
+          const until = alert.end ? formatDayTime(alert.end, timeZone, language) : null;
+          const subtitle = [
+            localize(CATEGORY_LABELS, alert.category, language),
+            until ? `${text('until', language)} ${until}` : null,
+          ]
+            .filter(Boolean)
+            .join(' · ');
+          const body = [alert.headline, alert.description, alert.instruction, alert.area]
+            .filter(Boolean)
+            .join('\n\n');
+          const item = {
+            title: truncate(alert.event, 60),
+            subtitle: truncate(subtitle, 60),
+            badge: {
+              text: localize(LEVEL_LABELS, alert.level, language),
+              color: SEVERITY_COLORS[alert.severity],
+            },
+            links: [
+              { url: forecastPageUrl(house.latitude, house.longitude), label: 'weather.gov' },
+            ],
+          };
+          if (alert.start) {
+            item.date = alert.start;
+          }
+          if (body) {
+            item.description = truncate(body, MAX_DESCRIPTION);
+          }
+          return item;
+        }),
+      },
+    );
+  }
+  components.push({
+    type: 'button',
+    label: text('fullForecast', language),
+    icon: 'external-link',
+    link: { url: forecastPageUrl(house.latitude, house.longitude) },
+  });
+  return { version: 1, ttl_seconds: TTL_SECONDS[WIDGETS.ALERTS], components };
+}
+
+// --- Forecast widget ----------------------------------------------------------
+
+/**
+ * @description The title of a forecast period in the user's language: the NWS
+ * name in English ("Saturday Night"), rebuilt from the date in French.
+ * @param {object} period - The /forecast period.
+ * @param {string} today - The local date of today, YYYY-MM-DD.
+ * @param {string} language - The user language.
+ * @returns {string} The title.
+ * @example
+ * periodTitle(period, '2026-10-09', 'fr'); // -> 'Nuit de samedi'
+ */
+function periodTitle(period, today, language) {
+  if (language === 'en' && period.name) {
+    return period.name;
+  }
+  const date = periodDate(period.startTime);
+  if (date === today) {
+    return text(period.isDaytime ? 'today' : 'tonight', language);
+  }
+  const day = weekdayName(date, language);
+  return period.isDaytime ? capitalize(day) : text('nightOf', language, { day });
+}
+
+/**
+ * @description Build the content of the `forecast` widget.
+ * @param {object} options - Options.
+ * @param {object} options.forecast - The /forecast payload, in the user's units.
+ * @param {object} options.house - The house.
+ * @param {string|null} options.place - "Linn, KS".
+ * @param {string|null} options.timeZone - The time zone of the house.
+ * @param {string} options.language - The user language.
+ * @param {string} options.units - 'metric' or 'us'.
+ * @param {boolean} options.showIcons - Whether to show the NWS icons.
+ * @param {number} [options.now] - Current time in ms.
+ * @returns {object} The widget content.
+ * @example
+ * buildForecastWidget({ forecast, house, place, timeZone, language: 'en', units: 'us', showIcons: true });
+ */
+function buildForecastWidget({
+  forecast,
+  house,
+  place,
+  timeZone,
+  language,
+  units,
+  showIcons,
+  now = Date.now(),
+}) {
+  const periods = upcomingPeriods(forecast, now).slice(0, MAX_LIST_ITEMS);
+  const today = localDate(now, timeZone);
+  const labels = unitLabels(units);
+  const updated = forecast?.properties?.updateTime;
+  const caption = [
+    house.name,
+    place,
+    updated ? `${text('updated', language)} ${formatTime(updated, timeZone, language)}` : null,
+  ]
+    .filter(Boolean)
+    .join(' · ');
+
+  const items = periods.map((period) => {
+    const temperature = `${text(period.isDaytime ? 'high' : 'low', language)} ${Math.round(period.temperature)}${labels.temperature}`;
+    const sky =
+      language === 'en' && period.shortForecast
+        ? period.shortForecast
+        : conditionLabel(readCondition(period.icon, period.shortForecast), language);
+    const item = {
+      title: periodTitle(period, today, language),
+      subtitle: truncate(`${sky} · ${temperature}`, 60),
+    };
+    const chance = period.probabilityOfPrecipitation?.value;
+    if (typeof chance === 'number' && chance >= 20) {
+      const rounded = Math.round(chance);
+      item.badge = { text: language === 'fr' ? `${rounded} %` : `${rounded}%`, color: 'info' };
+    }
+    if (period.detailedForecast) {
+      item.description = truncate(period.detailedForecast, MAX_DESCRIPTION);
+    }
+    if (showIcons) {
+      const key = iconKey(period.icon);
+      if (key !== null) {
+        item.image = key;
+      }
+    }
+    return item;
+  });
+
+  const components = [{ type: 'text', variant: 'caption', text: truncate(caption, 80) }];
+  if (items.length > 0) {
+    components.push({ type: 'card-list', display: 'list', items });
+  }
+  components.push({
+    type: 'button',
+    label: text('fullForecast', language),
+    icon: 'external-link',
+    link: { url: forecastPageUrl(house.latitude, house.longitude) },
+  });
+  return { version: 1, ttl_seconds: TTL_SECONDS[WIDGETS.FORECAST], components };
+}
+
+// --- Hourly widget ------------------------------------------------------------
+
+/**
+ * @description Read the hourly settings.
+ * @param {object} settings - The widget settings.
+ * @returns {{ metric: string, hours: number }} The metric and span.
+ * @example
+ * readHourlySettings({ metric: 'wind', hours: '48' }); // -> { metric: 'wind', hours: 48 }
+ */
+function readHourlySettings(settings = {}) {
+  const metric = HOURLY_METRICS.includes(settings.metric) ? settings.metric : 'temperature';
+  const hours = HOURLY_SPANS.includes(String(settings.hours)) ? Number(settings.hours) : 24;
+  return { metric, hours };
+}
+
+/**
+ * @description The entry with the highest (or lowest) value of a field.
+ * @param {Array<object>} entries - Entries.
+ * @param {string} field - The field.
+ * @param {number} sign - 1 for the maximum, -1 for the minimum.
+ * @returns {object|null} The entry.
+ * @example
+ * extreme(hours, 'temperature', 1);
+ */
+function extreme(entries, field, sign) {
+  return entries.reduce((best, entry) => {
+    if (typeof entry[field] !== 'number') {
+      return best;
+    }
+    return best === null || sign * entry[field] > sign * best[field] ? entry : best;
+  }, null);
+}
+
+const iso = (value) => new Date(value).toISOString();
+
+/**
+ * @description Build the content of the `hourly` widget.
+ * @param {object} options - Options.
+ * @param {object} options.hourly - The /forecast/hourly payload.
+ * @param {object|null} options.grid - The /gridpoints payload.
+ * @param {object} options.house - The house.
+ * @param {string|null} options.place - "Linn, KS".
+ * @param {string|null} options.timeZone - The time zone of the house.
+ * @param {string} options.language - The user language.
+ * @param {string} options.units - 'metric' or 'us'.
+ * @param {object} options.settings - The widget settings.
+ * @param {number} [options.now] - Current time in ms.
+ * @returns {object} The widget content.
+ * @example
+ * buildHourlyWidget({ hourly, grid, house, place, timeZone, language: 'en', units: 'us', settings: {} });
+ */
+function buildHourlyWidget({
+  hourly,
+  grid,
+  house,
+  place,
+  timeZone,
+  language,
+  units,
+  settings,
+  now = Date.now(),
+}) {
+  const { metric, hours: span } = readHourlySettings(settings);
+  const layers = readGrid(grid);
+  const hours = upcomingPeriods(hourly, now)
+    .slice(0, span)
+    .map((period) => buildHour(period, layers, units));
+  const ttl = TTL_SECONDS[WIDGETS.HOURLY];
+  if (hours.length === 0) {
+    return messageContent(text('outOfCoverage', language), ttl);
+  }
+  const labels = unitLabels(units);
+  const caption = {
+    type: 'text',
+    variant: 'caption',
+    text: truncate([house.name, place].filter(Boolean).join(' · '), 80),
+  };
+  const title = text('nextHours', language, { n: hours.length });
+  const time = (entry) => formatTime(entry.datetime, timeZone, language);
+  const components = [caption];
+
+  if (metric === 'temperature') {
+    const max = extreme(hours, 'temperature', 1);
+    const min = extreme(hours, 'temperature', -1);
+    const series = [
+      {
+        name: text('temperature', language),
+        points: hours.map((h) => ({ t: iso(h.datetime), v: h.temperature })),
+      },
+    ];
+    const feels = hours.filter((h) => typeof h.apparent_temperature === 'number');
+    if (
+      feels.length === hours.length &&
+      feels.some((h) => Math.abs(h.apparent_temperature - h.temperature) >= 1)
+    ) {
+      series.push({
+        name: text('feelsLike', language),
+        points: feels.map((h) => ({ t: iso(h.datetime), v: h.apparent_temperature })),
+      });
+    }
+    components.push(
+      {
+        type: 'value',
+        value: Math.round(hours[0].temperature),
+        unit: labels.temperature,
+        label: text('now', language),
+        icon: 'thermometer',
+      },
+      {
+        type: 'value',
+        value: Math.round(max.temperature),
+        unit: labels.temperature,
+        label: `${text('high', language)} ${time(max)}`,
+        color: 'danger',
+      },
+      {
+        type: 'value',
+        value: Math.round(min.temperature),
+        unit: labels.temperature,
+        label: `${text('low', language)} ${time(min)}`,
+        color: 'info',
+      },
+      {
+        type: 'chart',
+        chart_type: 'line',
+        title,
+        unit: labels.temperature,
+        series,
+        now_marker: true,
+        annotations: [
+          {
+            t: iso(max.datetime),
+            value: max.temperature,
+            label: `${Math.round(max.temperature)}°`,
+            color: 'danger',
+          },
+          {
+            t: iso(min.datetime),
+            value: min.temperature,
+            label: `${Math.round(min.temperature)}°`,
+            color: 'info',
+          },
+        ],
+      },
+    );
+  } else if (metric === 'precipitation') {
+    const chances = hours.map((h) => h.precipitation_probability ?? 0);
+    const maxChance = Math.max(...chances);
+    const first =
+      hours.find((h) => (h.precipitation_probability ?? 0) >= RAIN_CHANCE_THRESHOLD) ?? null;
+    const amounts = hours.map((h) => h.precipitation).filter((value) => typeof value === 'number');
+    const total = amounts.reduce((sum, value) => sum + value, 0);
+    components.push(
+      {
+        type: 'value',
+        value: maxChance,
+        unit: '%',
+        label: text('maxChance', language),
+        icon: 'umbrella',
+        color: maxChance >= 60 ? 'primary' : 'neutral',
+      },
+      {
+        type: 'value',
+        value: first ? time(first) : text('none', language),
+        label: text('firstRain', language),
+        icon: 'clock',
+      },
+    );
+    if (amounts.length > 0) {
+      components.push({
+        type: 'value',
+        value: units === 'us' ? Math.round(total * 100) / 100 : Math.round(total * 10) / 10,
+        unit: labels.precipitation,
+        label: text('total', language),
+        icon: 'droplet',
+      });
+    }
+    const chart = {
+      type: 'chart',
+      chart_type: 'bar',
+      title: `${text('rainChance', language)} · ${title}`,
+      unit: '%',
+      series: [
+        {
+          name: text('rainChance', language),
+          points: hours.map((h, index) => ({ t: iso(h.datetime), v: chances[index] })),
+        },
+      ],
+      now_marker: true,
+    };
+    if (first) {
+      chart.annotations = [{ t: iso(first.datetime), label: time(first), color: 'primary' }];
+    }
+    components.push(chart);
+  } else {
+    const speeds = hours.map((h) => displaySpeed(h.wind_speed, units) ?? 0);
+    const gusts = hours.map((h) => displaySpeed(h.wind_gust, units));
+    const hasGusts = gusts.every((value) => typeof value === 'number');
+    const maxSpeed = Math.max(...speeds);
+    const maxGustValue = hasGusts ? Math.max(...gusts) : null;
+    const gustIndex = hasGusts ? gusts.indexOf(maxGustValue) : -1;
+    components.push({
+      type: 'value',
+      value: maxSpeed,
+      unit: labels.speed,
+      label: text('maxWind', language),
+      icon: 'wind',
+    });
+    if (hasGusts) {
+      components.push({
+        type: 'value',
+        value: maxGustValue,
+        unit: labels.speed,
+        label: `${text('maxGust', language)} ${time(hours[gustIndex])}`,
+        color: maxGustValue >= (units === 'us' ? 40 : 60) ? 'warning' : 'neutral',
+      });
+    }
+    const direction = degreesToCompass(hours[0].wind_direction);
+    if (direction) {
+      components.push({
+        type: 'value',
+        value: direction,
+        label: text('direction', language),
+        icon: 'navigation',
+      });
+    }
+    const series = [
+      {
+        name: text('wind', language),
+        points: hours.map((h, index) => ({ t: iso(h.datetime), v: speeds[index] })),
+      },
+    ];
+    if (hasGusts) {
+      series.push({
+        name: text('gusts', language),
+        points: hours.map((h, index) => ({ t: iso(h.datetime), v: gusts[index] })),
+      });
+    }
+    const chart = {
+      type: 'chart',
+      chart_type: 'line',
+      title,
+      unit: labels.speed,
+      series,
+      now_marker: true,
+    };
+    if (hasGusts) {
+      chart.annotations = [
+        {
+          t: iso(hours[gustIndex].datetime),
+          value: maxGustValue,
+          label: `${maxGustValue}`,
+          color: 'warning',
+        },
+      ];
+    }
+    components.push(chart);
+  }
+  return { version: 1, ttl_seconds: ttl, components };
+}
+
+export {
+  WIDGETS,
+  TTL_SECONDS,
+  HOURLY_METRICS,
+  HOURLY_SPANS,
+  text,
+  truncate,
+  forecastPageUrl,
+  iconKey,
+  iconPathFromKey,
+  messageContent,
+  buildAlertsWidget,
+  periodTitle,
+  buildForecastWidget,
+  readHourlySettings,
+  buildHourlyWidget,
+};
