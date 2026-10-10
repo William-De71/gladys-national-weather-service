@@ -114,20 +114,4 @@ function weekdayName(date, language) {
   );
 }
 
-/**
- * @description The local hour (0-23) of an instant.
- * @param {number|string|Date} instant - The instant.
- * @param {string|null} timeZone - The IANA time zone.
- * @returns {number} The hour.
- * @example
- * localHour('2026-10-09T23:00:00Z', 'America/Chicago'); // -> 18
- */
-function localHour(instant, timeZone) {
-  return (
-    Number(
-      formatter('en-GB', { hour: '2-digit', hourCycle: 'h23' }, timeZone).format(new Date(instant)),
-    ) % 24
-  );
-}
-
-export { localDate, periodDate, addDays, formatTime, formatDayTime, weekdayName, localHour };
+export { localDate, periodDate, addDays, formatTime, formatDayTime, weekdayName };

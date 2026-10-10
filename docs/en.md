@@ -48,10 +48,11 @@ For instance, to be told about a tornado: trigger **NWS alert issued**, kind **T
 
 Good to know:
 
-- The **House** field must hold the house name **exactly** as shown in Gladys. Empty = every house.
+- The **House** field must hold the house name **exactly** as shown in Gladys, case included. Empty = every house.
 - The NWS never edits an alert: it issues a new one replacing the previous. The integration follows these updates: an extended or amended alert does not fire your scene again.
+- An alert that changes level (a Hurricane Watch replaced by a Hurricane Warning, for example) counts as a new alert: **NWS alert ended** for the old one, **NWS alert issued** for the new one.
 - Alerts already in force when the integration starts fire nothing: only new ones do.
-- An alert ends once it is missing from two checks in a row, or as soon as its end time has passed.
+- An alert ends as soon as its end time has passed, or once it is missing from two checks in a row and for at least 5 minutes. If it comes back afterwards, it fires **NWS alert issued** again: every end is followed by a new start, never by a second end.
 
 ## Scene actions
 
@@ -71,7 +72,7 @@ Every action has a **Summary** output, a sentence ready to send in a message.
 | **NWS text forecast** | the forecaster's narrative, period by period (Tonight, Saturday, Saturday Night…), with the NWS icons                                         |
 | **NWS next hours**    | 12, 24 or 48 hours as a curve: temperature and feels-like, chance of rain, or wind and gusts                                                  |
 
-Each widget has a **House** setting (empty = first located house).
+Each widget has a **House** setting (empty = first located house), written exactly as in Gladys.
 
 ## Configuration (optional)
 

@@ -4,6 +4,8 @@ import assert from 'node:assert/strict';
 import {
   normalizeConfig,
   readContact,
+  readPreferences,
+  PREFERENCE_KEYS,
   CACHE_DURATION,
   ALERT_CHECK_INTERVAL,
 } from '../src/config.js';
@@ -33,4 +35,20 @@ test('keeps the contact safe for an HTTP header', () => {
   assert.equal(readContact('a (b)'), 'a b');
   assert.equal(readContact(42), '');
   assert.equal(readContact('x'.repeat(300)).length, 100);
+});
+
+test('reads the stored language and units, keeping the fallback otherwise', () => {
+  const fallback = { language: 'en', units: 'us' };
+  assert.deepEqual(
+    readPreferences(
+      { [PREFERENCE_KEYS.language]: 'fr', [PREFERENCE_KEYS.units]: 'metric' },
+      fallback,
+    ),
+    { language: 'fr', units: 'metric' },
+  );
+  assert.deepEqual(readPreferences(undefined, fallback), fallback);
+  assert.deepEqual(
+    readPreferences({ [PREFERENCE_KEYS.language]: 'x\n', [PREFERENCE_KEYS.units]: 'si' }, fallback),
+    fallback,
+  );
 });

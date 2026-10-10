@@ -57,6 +57,17 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # The same gates as CI, on the exact commit being released: a release
+      # must never be cut from a commit whose CI failed or never ran.
+      - name: Check formatting (Prettier)
+        run: npm run format:check
+
+      - name: Lint (ESLint)
+        run: npm run lint
+
+      - name: Run tests
+        run: npm test
+
       - name: Bump version and update the manifest
         id: bump
         env:

@@ -50,10 +50,11 @@ Par exemple, pour être prévenu d'une tornade : déclencheur **Alerte NWS émis
 
 Bon à savoir :
 
-- Le champ **Maison** doit contenir le nom de la maison **exactement** comme dans Gladys. Vide = toutes les maisons.
+- Le champ **Maison** doit contenir le nom de la maison **exactement** comme dans Gladys, majuscules comprises. Vide = toutes les maisons.
 - Le NWS ne modifie jamais une alerte : il en publie une nouvelle qui remplace l'ancienne. L'intégration suit ces mises à jour : une alerte prolongée ou complétée ne redéclenche pas votre scène.
+- Une alerte qui change de niveau (par exemple Hurricane Watch remplacée par Hurricane Warning) compte comme une nouvelle alerte : **Fin d'une alerte NWS** pour l'ancienne, **Alerte NWS émise** pour la nouvelle.
 - Les alertes déjà en cours au démarrage de l'intégration ne déclenchent rien : seules les nouvelles comptent.
-- Une alerte est considérée terminée quand elle a disparu deux vérifications de suite, ou dès que son heure de fin est passée.
+- Une alerte est considérée terminée dès que son heure de fin est passée, ou quand elle a disparu deux vérifications de suite et depuis au moins 5 minutes. Si elle réapparaît ensuite, elle redéclenche **Alerte NWS émise** : chaque fin est suivie d'un nouveau départ, jamais de deux fins d'affilée.
 
 ## Scènes : actions NWS
 
@@ -73,7 +74,7 @@ Chaque action propose une sortie **Résumé**, une phrase prête à envoyer dans
 | **Prévision NWS détaillée** | le texte du prévisionniste période par période (cette nuit, samedi, nuit de samedi…), avec les icônes du NWS                                        |
 | **NWS heure par heure**     | 12, 24 ou 48 heures en courbe : température et ressenti, risque de pluie, ou vent et rafales                                                        |
 
-Chaque widget a un réglage **Maison** (vide = première maison localisée).
+Chaque widget a un réglage **Maison** (vide = première maison localisée), à écrire exactement comme dans Gladys.
 
 ## Configuration (facultative)
 

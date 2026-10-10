@@ -6,6 +6,7 @@ import {
   readLevel,
   readSeverity,
   readAlerts,
+  eventEnd,
   toPivotAlerts,
   countByLevel,
   CATEGORIES,
@@ -134,4 +135,15 @@ test('counts the alerts by level', () => {
     statement: 0,
     other: 0,
   });
+});
+
+test('reads the end of the event, not of the message', () => {
+  const expires = '2026-10-09T18:45:00-05:00';
+  const vtec = { VTEC: ['/O.NEW.KTOP.FL.W.0001.000000T0000Z-000000T0000Z/'] };
+  assert.equal(
+    eventEnd({ ends: '2026-10-10T06:00:00-05:00', expires }),
+    '2026-10-10T06:00:00-05:00',
+  );
+  assert.equal(eventEnd({ ends: null, expires, parameters: vtec }), null, 'until further notice');
+  assert.equal(eventEnd({ ends: null, expires, parameters: {} }), expires, 'no VTEC: the message');
 });

@@ -10,22 +10,14 @@
 //
 // There is no update event for the houses: they are re-read on every
 // connection and on each round of the alert watcher (a local call).
+//
+// A house is named exactly as in Gladys, everywhere: the core matches the
+// "House" filter of the triggers against the house name, character for
+// character. Accepting a different case or the selector in the actions and
+// widgets would let the user write a name that works there and silently
+// never matches in a trigger; an action naming an unknown house fails with
+// the list of the names to use instead.
 // -----------------------------------------------------------------------------
-
-/**
- * @description Normalize a house name or selector for a lenient comparison.
- * @param {string} value - The value to normalize.
- * @returns {string} The trimmed, lower-cased, accent-free value.
- * @example
- * normalizeName(' Résidence '); // -> 'residence'
- */
-function normalizeName(value) {
-  return String(value)
-    .normalize('NFD')
-    .replace(/\p{Diacritic}/gu, '')
-    .trim()
-    .toLowerCase();
-}
 
 /**
  * @description Create the house registry.
@@ -73,8 +65,9 @@ function createHouseRegistry({ fetchHouses, logger = console }) {
   /**
    * @description Find the house a scene action targets. An empty value means
    * "the house", i.e. the first located one — the common single-house case.
-   * Otherwise the name or the selector is matched, ignoring case and accents.
-   * @param {string|null|undefined} wanted - The house name or selector.
+   * Otherwise the name is matched exactly (surrounding spaces ignored), as
+   * the core matches the trigger filter.
+   * @param {string|null|undefined} wanted - The house name.
    * @returns {object} The house.
    * @throws {Error} When no house is located or none matches.
    * @example
@@ -87,13 +80,11 @@ function createHouseRegistry({ fetchHouses, logger = console }) {
     if (wanted === null || wanted === undefined || String(wanted).trim() === '') {
       return located[0];
     }
-    const target = normalizeName(wanted);
-    const house = located.find(
-      (candidate) =>
-        normalizeName(candidate.name) === target || normalizeName(candidate.selector) === target,
-    );
+    const target = String(wanted).trim();
+    const house = located.find((candidate) => candidate.name === target);
     if (house === undefined) {
-      throw new Error(`No located house named "${wanted}"`);
+      const names = located.map((candidate) => `"${candidate.name}"`).join(', ');
+      throw new Error(`No located house named "${target}" (names are case-sensitive): ${names}`);
     }
     return house;
   }
@@ -101,4 +92,4 @@ function createHouseRegistry({ fetchHouses, logger = console }) {
   return { refresh, list, resolve };
 }
 
-export { createHouseRegistry, normalizeName };
+export { createHouseRegistry };

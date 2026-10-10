@@ -76,20 +76,22 @@ function formatCoordinate(value) {
 }
 
 /**
- * @description Build the User-Agent the NWS requires.
- * @param {string} version - The integration version.
- * @param {string} [contact] - The operator's contact (email), optional.
+ * @description Build the User-Agent the NWS requires: the product, its
+ * project URL and the operator's contact. Name, version and URL come from
+ * package.json.
+ * @param {object} options - Options.
+ * @param {string} options.name - The package name.
+ * @param {string} options.version - The integration version.
+ * @param {string} [options.homepage] - The project URL.
+ * @param {string} [options.contact] - The operator's contact (email), optional.
  * @returns {string} The User-Agent header.
  * @example
- * buildUserAgent('0.1.0', 'me@example.com');
+ * buildUserAgent({ name: 'gladys-national-weather-service', version: '0.1.0', homepage: 'https://github.com/William-De71/gladys-national-weather-service', contact: 'me@example.com' });
  * // -> 'gladys-national-weather-service/0.1.0 (https://github.com/William-De71/gladys-national-weather-service, me@example.com)'
  */
-function buildUserAgent(version, contact = '') {
-  const parts = ['https://github.com/William-De71/gladys-national-weather-service'];
-  if (contact) {
-    parts.push(contact);
-  }
-  return `gladys-national-weather-service/${version} (${parts.join(', ')})`;
+function buildUserAgent({ name, version, homepage = '', contact = '' }) {
+  const parts = [homepage, contact].filter(Boolean);
+  return parts.length > 0 ? `${name}/${version} (${parts.join(', ')})` : `${name}/${version}`;
 }
 
 /**

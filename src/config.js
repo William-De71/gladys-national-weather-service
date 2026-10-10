@@ -11,12 +11,18 @@
 //     about once an hour upstream);
 //   - `alert_check_interval`: how often the official alerts are checked, for
 //     the scene triggers, the alerts widget and the core weather-alert trigger.
+//
+// Two internal keys, outside the config_schema (never shown in the UI): the
+// language and unit system of the last request, for the scene events after a
+// restart (see readPreferences()).
 // -----------------------------------------------------------------------------
 
 // Bounds and defaults, mirrored from the manifest `config_schema`.
 const CACHE_DURATION = { min: 0, max: 3600, default: 600 };
 const ALERT_CHECK_INTERVAL = { min: 30, max: 900, default: 60 };
 const MAX_CONTACT_LENGTH = 100;
+const PREFERENCE_KEYS = { language: 'last_language', units: 'last_units' };
+const UNIT_SYSTEMS = ['metric', 'us'];
 
 /**
  * @description Read a bounded number field, falling back to its default.
@@ -70,4 +76,31 @@ function normalizeConfig(rawConfig = {}) {
   };
 }
 
-export { CACHE_DURATION, ALERT_CHECK_INTERVAL, normalizeConfig, readContact };
+/**
+ * @description Read the stored language and unit system of the last request.
+ * @param {object} [rawConfig] - The raw config values.
+ * @param {{ language: string, units: string }} fallback - The values to keep
+ * when nothing valid is stored.
+ * @returns {{ language: string, units: string }} The preferences.
+ * @example
+ * readPreferences({ last_language: 'fr', last_units: 'metric' }, { language: 'en', units: 'us' });
+ */
+function readPreferences(rawConfig, fallback) {
+  const config = rawConfig ?? {};
+  const language = config[PREFERENCE_KEYS.language];
+  const units = config[PREFERENCE_KEYS.units];
+  return {
+    language:
+      typeof language === 'string' && /^[a-z]{2}$/.test(language) ? language : fallback.language,
+    units: UNIT_SYSTEMS.includes(units) ? units : fallback.units,
+  };
+}
+
+export {
+  CACHE_DURATION,
+  ALERT_CHECK_INTERVAL,
+  PREFERENCE_KEYS,
+  normalizeConfig,
+  readContact,
+  readPreferences,
+};

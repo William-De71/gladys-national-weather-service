@@ -35,7 +35,7 @@
 
 import { readFileSync } from 'node:fs';
 import { GladysIntegration, logger } from '@gladysassistant/integration-sdk';
-import { normalizeConfig } from './src/config.js';
+import { normalizeConfig, readPreferences, PREFERENCE_KEYS } from './src/config.js';
 import { createNwsClient, buildUserAgent } from './src/nws-api.js';
 import { buildWeather, placeName } from './src/weather.js';
 import { readAlerts } from './src/alerts.js';
@@ -58,7 +58,9 @@ import {
   buildHourlyWidget,
 } from './src/widgets.js';
 
-const { version } = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'));
+const { name, version, homepage } = JSON.parse(
+  readFileSync(new URL('./package.json', import.meta.url), 'utf8'),
+);
 
 const gladys = new GladysIntegration();
 
@@ -67,20 +69,31 @@ let config = normalizeConfig();
 
 // Language and unit system of the instance, as the core sent them in its last
 // request. The scene actions and triggers have no request to read them from.
+// Kept in the integration config (internal keys, outside the config_schema):
+// the first alert after a restart must not come out in English for a French
+// user because no request came in yet.
 let preferences = { language: 'en', units: 'us' };
 
 /**
- * @description Remember the language and units of the last request.
+ * @description Remember the language and units of the last request, and
+ * store them when they changed.
  * @param {object} options - { language, units }.
  * @example
  * rememberPreferences({ language: 'fr', units: 'metric' });
  */
 function rememberPreferences({ language, units }) {
-  preferences = { language: language || preferences.language, units: units || preferences.units };
+  const next = { language: language || preferences.language, units: units || preferences.units };
+  if (next.language === preferences.language && next.units === preferences.units) {
+    return;
+  }
+  preferences = next;
+  gladys
+    .setConfig({ [PREFERENCE_KEYS.language]: next.language, [PREFERENCE_KEYS.units]: next.units })
+    .catch((err) => logger.warn(`Unable to store the language and units: ${err.message}`));
 }
 
 const nws = createNwsClient({
-  getUserAgent: () => buildUserAgent(version, config.contact),
+  getUserAgent: () => buildUserAgent({ name, version, homepage, contact: config.contact }),
   getCacheDuration: () => config.cacheDuration,
   logger,
 });
@@ -107,6 +120,9 @@ async function optional(promise, fallback, what) {
 
 /**
  * @description Load every NWS product of a location and build the pivot weather.
+ * Only the point is required: without the hourly forecast (its endpoint is
+ * the one the NWS most often answers with a 500/503), the current conditions
+ * come from the observation.
  * @param {object} options - { latitude, longitude, units }.
  * @returns {Promise<object>} `{ weather, point, observation, forecast, hourly, grid, alerts }`.
  * @throws {OutOfCoverageError} Outside the United States (the provider loop of
@@ -117,7 +133,7 @@ async function optional(promise, fallback, what) {
 async function loadWeather({ latitude, longitude, units }) {
   const point = await nws.getPoint(latitude, longitude);
   const [hourly, forecast, grid, observation, features] = await Promise.all([
-    nws.getHourlyForecast(point),
+    optional(nws.getHourlyForecast(point), null, 'hourly forecast'),
     optional(nws.getForecast(point, units), null, 'forecast'),
     optional(nws.getGridData(point), null, 'grid data'),
     optional(nws.getLatestObservation(point), null, 'observation'),
@@ -332,16 +348,24 @@ gladys.onConfigUpdated((rawConfig) => {
 // --- Connection lifecycle ----------------------------------------------------
 // No persistent connection to the NWS (plain HTTPS calls) and nothing to
 // configure: the integration is "connected" as soon as it is up.
+// Each step on its own: a failing one must not keep the alert watcher from
+// starting (no trigger would fire until the next reconnection).
 gladys.on('connected', async () => {
   try {
-    config = normalizeConfig(await gladys.getConfig());
+    const rawConfig = await gladys.getConfig();
+    config = normalizeConfig(rawConfig);
+    preferences = readPreferences(rawConfig, preferences);
     nws.clear();
-    await gladys.setConnectionStatus(true);
-    await houses.refresh();
-    alertWatcher.start();
   } catch (err) {
-    logger.error('Post-connection initialization failed', err);
+    logger.error('Unable to read the configuration: previous values kept', err);
   }
+  try {
+    await gladys.setConnectionStatus(true);
+  } catch (err) {
+    logger.error('Unable to report the connection status', err);
+  }
+  await houses.refresh();
+  alertWatcher.start();
 });
 
 // --- Graceful shutdown -------------------------------------------------------

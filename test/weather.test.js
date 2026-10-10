@@ -121,8 +121,14 @@ test('carries the alerts in the pivot format', () => {
   assert.equal(build('us', { alerts: [] }).alerts, undefined);
 });
 
-test('refuses a forecast with no hour to come', () => {
-  assert.throws(() => build('us', { hourly: { properties: { periods: [] } } }), /no period/);
+test('answers from the observation when the hourly forecast is missing', () => {
+  for (const hourly of [null, { properties: { periods: [] } }]) {
+    const weather = build('us', { hourly });
+    assert.equal(weather.temperature, 86);
+    assert.equal(weather.hours, undefined);
+    assert.ok(weather.days.length > 0);
+  }
+  assert.throws(() => build('us', { hourly: null, observation: null }), /no current temperature/);
 });
 
 test('tells day from night with the sun', () => {

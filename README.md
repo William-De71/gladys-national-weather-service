@@ -52,8 +52,11 @@ Kinds: tornado, hurricane / tropical, severe thunderstorm, flood, winter storm, 
 air quality, marine, other. Levels: warning, watch, advisory, statement, other. Variables: event, kind, level,
 severity, urgency, certainty, headline, area, start and end (local time), instructions, description, summary.
 
-An alert is followed through its updates (the NWS issues a new alert referencing the one it replaces); an alert
-ends once missing from two checks in a row or past its end time; the first check after a start is a baseline.
+An alert is followed through its updates (the NWS issues a new alert referencing the one it replaces); an upgrade
+to another event (Watch → Warning) ends the old alert and issues the new one; an alert ends past its end time, or
+once missing from two checks in a row and for 5 minutes, and fires "issued" again if it comes back (issued and ended
+always pair); the first check after a start is a baseline. A VTEC alert with no `ends` (river Flood Warning) runs
+until further notice: its `expires` is only the time of the next message.
 
 ### Scene actions
 
@@ -88,7 +91,8 @@ All optional:
 
 The weather path gets its coordinates from Gladys. The alert watcher, the scene actions and the widgets read the
 **houses** of Gladys (`location: true`): set the location of each house in its settings. A "House" field takes
-the house name as shown in Gladys; empty means the first located house.
+the house name exactly as shown in Gladys, case included — the core matches the trigger filter that way, so the
+actions and widgets do too; empty means the first located house.
 
 ## Calls to the NWS
 

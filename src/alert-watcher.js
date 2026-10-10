@@ -12,14 +12,22 @@
 //
 // Following an alert through its life. The NWS never edits an alert: it
 // issues a new one whose `references` list the ones it replaces (an extended
-// warning, an updated text). So:
-//   - an alert whose id, or one of whose references, is already known is the
-//     CONTINUATION of an episode: no new `alert_issued`;
-//   - an alert that disappears without being replaced has ENDED — once it
-//     has been missing for two checks in a row, or once its end time has
-//     passed: one empty answer of the API must not end a tornado warning;
-//   - ended and replaced alerts are remembered for 6 hours, so an alert that
-//     comes back after a hiccup does not fire twice.
+// warning, an updated text, but also an UPGRADE: the Hurricane Warning that
+// replaces a Hurricane Watch references it). So:
+//   - an alert whose id is already known, or that references a known alert
+//     of the SAME event, is the CONTINUATION of an episode: no new
+//     `alert_issued`;
+//   - an alert that references a known alert of another event is an upgrade
+//     (or a downgrade): `alert_ended` for the old one, `alert_issued` for the
+//     new one, so a scene filtered on `level=warning` runs at the upgrade;
+//   - an alert that disappears without being replaced has ENDED — once its
+//     end time has passed, or once it has been missing for two checks in a
+//     row AND for five minutes: a short outage of the API answering an empty
+//     list must not end a tornado warning;
+//   - replaced alerts are remembered for 6 hours, so an update that comes
+//     back after a hiccup does not fire twice. Ended ones too, but an ended
+//     alert that comes back fires `alert_issued` again: the scenes saw it end,
+//     they must see it start — `alert_issued` and `alert_ended` always pair.
 // The first check of a house after a start is a BASELINE (no event): a
 // restart in the middle of a storm must not re-fire every scene — the rule of
 // the core weather-alert trigger.
@@ -34,6 +42,7 @@ const SCENE_TRIGGERS = {
 };
 
 const MISSING_CHECKS_TO_END = 2;
+const MISSING_MS_TO_END = 5 * 60 * 1000;
 const ENDED_MEMORY_MS = 6 * 60 * 60 * 1000;
 // Scene event strings are capped at 1000 characters by the core.
 const MAX_EVENT_STRING = 1000;
@@ -132,7 +141,7 @@ function buildEndedData(alert, { house, language, timeZone }) {
  * @param {Function} options.getIntervalMs - `() => number`, read before every round.
  * @param {object} [options.logger] - Logger with info/warn/debug.
  * @param {Function} [options.now] - `() => number` in ms (for the tests).
- * @returns {object} The watcher ({ check, start, stop, activeAlerts }).
+ * @returns {object} The watcher ({ check, start, stop }).
  * @example
  * const watcher = createAlertWatcher({ houses, loadAlerts, publish, onChange, getLanguage, getIntervalMs });
  */
@@ -146,8 +155,9 @@ function createAlertWatcher({
   logger = console,
   now = () => Date.now(),
 }) {
-  // house id -> { tracked: Map<id, { alert, missing }>, retired: Map<id, ms>, alerts, timeZone }
-  // `retired`: ids that left the list (ended or replaced), with when.
+  // house id -> { tracked: Map<id, { alert, missing, missingSince }>, retired: Map<id, { at, event, ended }> }
+  // `retired`: ids that left the list, with when, their event name, and
+  // whether `alert_ended` was published for them (false: replaced).
   const states = new Map();
   // house id -> ms until which the house is not checked (outside the NWS)
   const skippedUntil = new Map();
@@ -196,13 +206,12 @@ function createAlertWatcher({
     const { alerts, timeZone = null } = loaded;
     const current = new Map(alerts.map((alert) => [alert.id, alert]));
     const state = states.get(house.id);
+    const fresh = (alert) => ({ alert, missing: 0, missingSince: null });
 
     if (state === undefined) {
       states.set(house.id, {
-        tracked: new Map(alerts.map((alert) => [alert.id, { alert, missing: 0 }])),
+        tracked: new Map(alerts.map((alert) => [alert.id, fresh(alert)])),
         retired: new Map(),
-        alerts,
-        timeZone,
       });
       logger.debug(`Alert baseline of house "${house.name}": ${alerts.length} alert(s)`);
       return;
@@ -214,32 +223,46 @@ function createAlertWatcher({
     let changed = false;
 
     // Forget the retired alerts past the memory delay.
-    state.retired.forEach((endedAt, id) => {
-      if (instant - endedAt > ENDED_MEMORY_MS) {
+    state.retired.forEach(({ at }, id) => {
+      if (instant - at > ENDED_MEMORY_MS) {
         state.retired.delete(id);
       }
     });
 
-    // Alerts that left the list: replaced by an update, or ending.
-    const referenced = new Set(alerts.flatMap((alert) => alert.references));
+    const retire = (id, entry, ended) => {
+      state.tracked.delete(id);
+      state.retired.set(id, { at: instant, event: entry.alert.event, ended });
+      changed = true;
+    };
+
+    // Alerts that left the list: replaced by an update of the same event,
+    // replaced by another event (upgrade), or ending.
+    const referencedBy = new Map();
+    alerts.forEach((alert) =>
+      alert.references.forEach((id) => {
+        referencedBy.set(id, [...(referencedBy.get(id) ?? []), alert.event]);
+      }),
+    );
     for (const [id, entry] of [...state.tracked]) {
       if (current.has(id)) {
         continue;
       }
-      if (referenced.has(id)) {
+      const replacements = referencedBy.get(id);
+      if (replacements?.includes(entry.alert.event)) {
         // Replaced by an update: remembered, so the update reads as the
         // continuation of this episode just below.
-        state.tracked.delete(id);
-        state.retired.set(id, instant);
-        changed = true;
+        retire(id, entry, false);
         continue;
       }
-      entry.missing += 1;
+      if (replacements === undefined) {
+        entry.missing += 1;
+        entry.missingSince ??= instant;
+      }
       const expired = entry.alert.end !== null && Date.parse(entry.alert.end) <= instant;
-      if (entry.missing >= MISSING_CHECKS_TO_END || expired) {
-        state.tracked.delete(id);
-        state.retired.set(id, instant);
-        changed = true;
+      const gone =
+        entry.missing >= MISSING_CHECKS_TO_END && instant - entry.missingSince >= MISSING_MS_TO_END;
+      if (replacements !== undefined || expired || gone) {
+        retire(id, entry, true);
         await safePublish(SCENE_TRIGGERS.ALERT_ENDED, buildEndedData(entry.alert, context));
       }
     }
@@ -250,19 +273,25 @@ function createAlertWatcher({
       if (entry !== undefined) {
         entry.alert = alert;
         entry.missing = 0;
+        entry.missingSince = null;
         continue;
       }
-      const known = (id) => state.tracked.has(id) || state.retired.has(id);
+      // Known: tracked, or retired without an `alert_ended` (replaced), and
+      // of the same event — an upgrade starts a new episode.
+      const known = (id) => {
+        const retired = state.retired.get(id);
+        const event =
+          state.tracked.get(id)?.alert.event ?? (retired?.ended ? null : retired?.event);
+        return event === alert.event;
+      };
       const continuation = known(alert.id) || alert.references.some(known);
-      state.tracked.set(alert.id, { alert, missing: 0 });
+      state.tracked.set(alert.id, fresh(alert));
       changed = true;
       if (!continuation) {
         await safePublish(SCENE_TRIGGERS.ALERT_ISSUED, buildIssuedData(alert, context));
       }
     }
 
-    state.alerts = alerts;
-    state.timeZone = timeZone;
     if (changed) {
       onChange(house);
     }
@@ -339,23 +368,13 @@ function createAlertWatcher({
     }
   }
 
-  /**
-   * @description The alerts last seen for a house, when it is watched.
-   * @param {string} houseId - The house id.
-   * @returns {Array<object>|null} The alerts, or null when unknown.
-   * @example
-   * watcher.activeAlerts(house.id);
-   */
-  function activeAlerts(houseId) {
-    return states.get(houseId)?.alerts ?? null;
-  }
-
-  return { check, start, stop, activeAlerts };
+  return { check, start, stop };
 }
 
 export {
   SCENE_TRIGGERS,
   MISSING_CHECKS_TO_END,
+  MISSING_MS_TO_END,
   ENDED_MEMORY_MS,
   alertSummary,
   buildIssuedData,

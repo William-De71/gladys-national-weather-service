@@ -3,6 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "description": "External Gladys Assistant integration providing National Weather Service forecasts and official alerts for the United States.",
+  "homepage": "https://github.com/William-De71/gladys-national-weather-service",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/William-De71/gladys-national-weather-service.git"
+  },
   "type": "module",
   "main": "index.js",
   "scripts": {

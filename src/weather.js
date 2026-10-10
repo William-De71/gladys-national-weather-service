@@ -264,7 +264,7 @@ function createDaylight(timeZone, latitude, longitude) {
  * @param {object} products - The NWS products.
  * @param {object} products.point - The /points payload.
  * @param {object|null} products.observation - The latest observation properties.
- * @param {object} products.hourly - The /forecast/hourly payload.
+ * @param {object|null} products.hourly - The /forecast/hourly payload (null when unavailable).
  * @param {object|null} products.forecast - The /forecast payload, in the requested units.
  * @param {object|null} products.grid - The /gridpoints payload.
  * @param {Array<object>} products.alerts - The readAlerts() alerts.
@@ -274,7 +274,8 @@ function createDaylight(timeZone, latitude, longitude) {
  * @param {number} options.longitude - Longitude of the house.
  * @param {number} [options.now] - Current time in ms.
  * @returns {object} The pivot payload.
- * @throws {Error} When the hourly forecast has no period to come.
+ * @throws {Error} When neither the observation nor the hourly forecast gives
+ * a current temperature.
  * @example
  * const weather = buildWeather(products, { units: 'metric', latitude, longitude });
  */
@@ -293,11 +294,9 @@ function buildWeather(
       hour.is_day = isDayAt(Date.parse(period.startTime)) ?? hour.is_day;
       return hour;
     });
-  if (hours.length === 0) {
-    throw new Error('The NWS hourly forecast has no period to come');
-  }
-
-  const weather = buildCurrent(observation, hours[0], layers, { units, now });
+  // No hour to come (hourly forecast unavailable or stale): the current
+  // conditions rest on the observation alone, and the payload has no hours.
+  const weather = buildCurrent(observation, hours[0] ?? null, layers, { units, now });
   if (!isNumber(weather.temperature)) {
     throw new Error('The NWS published no current temperature');
   }
@@ -309,7 +308,9 @@ function buildWeather(
     weather.sunset = today.sunset;
   }
 
-  weather.hours = hours;
+  if (hours.length > 0) {
+    weather.hours = hours;
+  }
   const days = buildDays(forecast, layers, { units, latitude, longitude });
   if (days.length > 0) {
     weather.days = days;

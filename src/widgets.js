@@ -68,6 +68,10 @@ const TEXTS = {
     en: 'This house is outside the National Weather Service coverage (United States only).',
     fr: 'Cette maison est hors de la zone du National Weather Service (États-Unis uniquement).',
   },
+  noForecast: {
+    en: 'The National Weather Service has no hourly forecast to come for this house right now.',
+    fr: 'Le National Weather Service ne fournit pas de prévision horaire à venir pour cette maison en ce moment.',
+  },
   noHouse: {
     en: 'No house of Gladys has a location: set it in the house settings.',
     fr: 'Aucune maison de Gladys n’est localisée : renseignez sa position dans ses réglages.',
@@ -91,6 +95,7 @@ const TEXTS = {
   nextHours: { en: 'Next {n} hours', fr: '{n} prochaines heures' },
   today: { en: 'Today', fr: 'Aujourd’hui' },
   tonight: { en: 'Tonight', fr: 'Cette nuit' },
+  overnight: { en: 'Overnight', fr: 'Fin de nuit' },
   nightOf: { en: '{day} Night', fr: 'Nuit de {day}' },
 };
 
@@ -328,7 +333,11 @@ function buildAlertsWidget({ alerts, house, place, timeZone, language }) {
 
 /**
  * @description The title of a forecast period in the user's language: the NWS
- * name in English ("Saturday Night"), rebuilt from the date in French.
+ * name in English ("Saturday Night"), rebuilt from the date in French. After
+ * midnight the NWS lists the end of the night ("Overnight", starting in the
+ * small hours) then the coming night ("Tonight"), both dated today: the first
+ * one is told apart by its local start hour (the period time carries its
+ * offset).
  * @param {object} period - The /forecast period.
  * @param {string} today - The local date of today, YYYY-MM-DD.
  * @param {string} language - The user language.
@@ -342,7 +351,11 @@ function periodTitle(period, today, language) {
   }
   const date = periodDate(period.startTime);
   if (date === today) {
-    return text(period.isDaytime ? 'today' : 'tonight', language);
+    if (period.isDaytime) {
+      return text('today', language);
+    }
+    const hour = Number(String(period.startTime).slice(11, 13));
+    return text(hour < 12 ? 'overnight' : 'tonight', language);
   }
   const day = weekdayName(date, language);
   return period.isDaytime ? capitalize(day) : text('nightOf', language, { day });
@@ -493,8 +506,10 @@ function buildHourlyWidget({
     .slice(0, span)
     .map((period) => buildHour(period, layers, units));
   const ttl = TTL_SECONDS[WIDGETS.HOURLY];
+  // No hour to come: a stale or empty forecast (outside the coverage is
+  // handled before, by the point lookup).
   if (hours.length === 0) {
-    return messageContent(text('outOfCoverage', language), ttl);
+    return messageContent(text('noForecast', language), ttl);
   }
   const labels = unitLabels(units);
   const caption = {
@@ -507,17 +522,22 @@ function buildHourlyWidget({
   const components = [caption];
 
   if (metric === 'temperature') {
-    const max = extreme(hours, 'temperature', 1);
-    const min = extreme(hours, 'temperature', -1);
+    // Hours without a temperature are left out of the curve and the values.
+    const temperatures = hours.filter((h) => typeof h.temperature === 'number');
+    if (temperatures.length === 0) {
+      return messageContent(text('noForecast', language), ttl);
+    }
+    const max = extreme(temperatures, 'temperature', 1);
+    const min = extreme(temperatures, 'temperature', -1);
     const series = [
       {
         name: text('temperature', language),
-        points: hours.map((h) => ({ t: iso(h.datetime), v: h.temperature })),
+        points: temperatures.map((h) => ({ t: iso(h.datetime), v: h.temperature })),
       },
     ];
-    const feels = hours.filter((h) => typeof h.apparent_temperature === 'number');
+    const feels = temperatures.filter((h) => typeof h.apparent_temperature === 'number');
     if (
-      feels.length === hours.length &&
+      feels.length === temperatures.length &&
       feels.some((h) => Math.abs(h.apparent_temperature - h.temperature) >= 1)
     ) {
       series.push({
@@ -528,7 +548,7 @@ function buildHourlyWidget({
     components.push(
       {
         type: 'value',
-        value: Math.round(hours[0].temperature),
+        value: Math.round(temperatures[0].temperature),
         unit: labels.temperature,
         label: text('now', language),
         icon: 'thermometer',

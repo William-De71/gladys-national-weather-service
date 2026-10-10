@@ -59,7 +59,7 @@ test('takes a baseline first, then fires a new alert once', async () => {
   setAlerts([feature({ id: 'heat', event: 'Heat Advisory', severity: 'Moderate' })]);
   await watcher.check();
   assert.equal(events.length, 0, 'the alerts in force at start are the baseline');
-  assert.equal(watcher.activeAlerts(HOUSE.id).length, 1);
+  assert.deepEqual(changes, []);
 
   setAlerts([
     feature({ id: 'heat', event: 'Heat Advisory', severity: 'Moderate' }),
@@ -127,20 +127,116 @@ test('ends an alert missing twice, or at once when it expired', async () => {
   ]);
 });
 
-test('does not fire twice for an alert coming back after a hiccup', async () => {
-  const { watcher, setAlerts, events } = setup();
+test('does not end an alert on a short outage of the API', async () => {
+  const { watcher, setAlerts, events, advance } = setup();
   await watcher.check();
-  setAlerts([feature({ id: 'tor' })]);
+  setAlerts([feature({ id: 'tor', expires: '2026-10-09T19:45:00-05:00' })]);
   await watcher.check();
   setAlerts([]);
   await watcher.check();
+  advance(60 * 1000);
+  await watcher.check();
+  setAlerts([feature({ id: 'tor', expires: '2026-10-09T19:45:00-05:00' })]);
+  advance(60 * 1000);
+  await watcher.check();
+  assert.deepEqual(
+    events.map((event) => event.key),
+    [SCENE_TRIGGERS.ALERT_ISSUED],
+    'two empty answers within five minutes end nothing',
+  );
+});
+
+test('pairs issued and ended when an ended alert comes back', async () => {
+  const { watcher, setAlerts, events, advance } = setup();
+  const tornado = () => feature({ id: 'tor', expires: '2026-10-09T20:45:00-05:00' });
+  await watcher.check();
+  setAlerts([tornado()]);
+  await watcher.check();
+  setAlerts([]);
+  await watcher.check();
+  advance(6 * 60 * 1000);
+  await watcher.check();
+  setAlerts([tornado()]);
+  await watcher.check();
+  setAlerts([]);
+  await watcher.check();
+  advance(6 * 60 * 1000);
+  await watcher.check();
+  assert.deepEqual(
+    events.map((event) => event.key),
+    [
+      SCENE_TRIGGERS.ALERT_ISSUED,
+      SCENE_TRIGGERS.ALERT_ENDED,
+      SCENE_TRIGGERS.ALERT_ISSUED,
+      SCENE_TRIGGERS.ALERT_ENDED,
+    ],
+  );
+});
+
+test('fires an upgrade from a watch to a warning', async () => {
+  const { watcher, setAlerts, events } = setup();
+  await watcher.check();
+  setAlerts([feature({ id: 'watch', event: 'Hurricane Watch', severity: 'Severe' })]);
+  await watcher.check();
+  setAlerts([
+    feature({
+      id: 'warning',
+      event: 'Hurricane Warning',
+      messageType: 'Update',
+      references: [{ identifier: 'watch' }],
+    }),
+  ]);
+  await watcher.check();
+  assert.deepEqual(
+    events.map((event) => [event.key, event.data.event, event.data.level]),
+    [
+      [SCENE_TRIGGERS.ALERT_ISSUED, 'Hurricane Watch', 'watch'],
+      [SCENE_TRIGGERS.ALERT_ENDED, 'Hurricane Watch', 'watch'],
+      [SCENE_TRIGGERS.ALERT_ISSUED, 'Hurricane Warning', 'warning'],
+    ],
+  );
+});
+
+test('ends an alert cancelled by the NWS', async () => {
+  const { watcher, setAlerts, events, advance } = setup();
   await watcher.check();
   setAlerts([feature({ id: 'tor' })]);
+  await watcher.check();
+  setAlerts([feature({ id: 'can', messageType: 'Cancel', references: [{ identifier: 'tor' }] })]);
+  await watcher.check();
+  advance(5 * 60 * 1000);
   await watcher.check();
   assert.deepEqual(
     events.map((event) => event.key),
     [SCENE_TRIGGERS.ALERT_ISSUED, SCENE_TRIGGERS.ALERT_ENDED],
   );
+});
+
+test('keeps an alert until further notice past the expiry of its message', async () => {
+  const { watcher, setAlerts, events, advance } = setup();
+  const flood = (id, references = []) =>
+    feature({
+      id,
+      event: 'Flood Warning',
+      severity: 'Severe',
+      references,
+      expires: '2026-10-09T18:30:00-05:00',
+      ends: null,
+      parameters: { VTEC: ['/O.NEW.KTOP.FL.W.0001.000000T0000Z-000000T0000Z/'] },
+    });
+  await watcher.check();
+  setAlerts([flood('f1')]);
+  await watcher.check();
+  advance(60 * 60 * 1000);
+  await watcher.check();
+  setAlerts([flood('f2', [{ identifier: 'f1' }])]);
+  await watcher.check();
+  assert.deepEqual(
+    events.map((event) => event.key),
+    [SCENE_TRIGGERS.ALERT_ISSUED],
+    'the late follow-up continues the alert',
+  );
+  assert.equal(events[0].data.ends, null);
 });
 
 test('skips a house outside the NWS coverage for a day', async () => {
@@ -178,22 +274,26 @@ test('survives an API failure and a refused event', async () => {
   const failing = setup({
     loadAlerts: async () => {
       if (fail) throw new Error('503');
-      return { alerts: [], timeZone: null };
+      return { alerts: readAlerts([feature({ id: 'tor' })], NOW), timeZone: null };
     },
   });
   await failing.watcher.check();
   fail = true;
+  failing.advance(10 * 60 * 1000);
   await failing.watcher.check();
-  assert.deepEqual(failing.watcher.activeAlerts(HOUSE.id), []);
+  await failing.watcher.check();
+  assert.deepEqual(failing.events, [], 'a failed check is no empty answer');
 });
 
 test('forgets a removed house', async () => {
-  const { watcher, houseList } = setup();
+  const { watcher, houseList, setAlerts, events } = setup();
   await watcher.check();
-  assert.deepEqual(watcher.activeAlerts(HOUSE.id), []);
   houseList.length = 0;
   await watcher.check();
-  assert.equal(watcher.activeAlerts(HOUSE.id), null);
+  setAlerts([feature({ id: 'tor' })]);
+  houseList.push(HOUSE);
+  await watcher.check();
+  assert.deepEqual(events, [], 'back, the house takes a new baseline');
 });
 
 test('builds the event data with local times and a summary', () => {

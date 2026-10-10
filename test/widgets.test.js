@@ -207,6 +207,9 @@ test('names the periods in French', () => {
   assert.equal(periodTitle({ ...night, isDaytime: true }, '2026-10-09', 'fr'), 'Samedi');
   assert.equal(periodTitle(night, '2026-10-10', 'fr'), 'Cette nuit');
   assert.equal(periodTitle({ ...night, isDaytime: true }, '2026-10-10', 'fr'), 'Aujourd’hui');
+  const overnight = { name: 'Overnight', isDaytime: false, startTime: '2026-10-10T01:00:00-05:00' };
+  assert.equal(periodTitle(overnight, '2026-10-10', 'fr'), 'Fin de nuit');
+  assert.equal(periodTitle(overnight, '2026-10-10', 'en'), 'Overnight');
 });
 
 test('hourly widget: every metric, span, language and unit system fits', () => {
@@ -339,10 +342,29 @@ test('hourly widget: a message when no hour is left', () => {
   });
   assert.deepEqual(validateWidgetContent(content), []);
   assert.equal(content.components.length, 1);
+  assert.equal(content.components[0].text, text('noForecast', 'en'));
+});
+
+test('hourly widget: hours without a temperature are left out', () => {
+  const { hourly, grid } = fixtures();
+  const settings = { metric: 'temperature', hours: '12' };
+  const options = { grid, house: HOUSE, place: null, timeZone: TIME_ZONE, language: 'en' };
+  hourly.properties.periods[1].temperature = null;
+  const some = buildHourlyWidget({ ...options, hourly, units: 'us', settings, now: NOW });
+  assert.deepEqual(validateWidgetContent(some), []);
+  some.components
+    .filter((component) => component.type === 'value')
+    .forEach((component) => assert.ok(Number.isFinite(component.value)));
+
+  hourly.properties.periods.forEach((period) => {
+    period.temperature = null;
+  });
+  const none = buildHourlyWidget({ ...options, hourly, units: 'us', settings, now: NOW });
+  assert.equal(none.components[0].text, text('noForecast', 'en'));
 });
 
 test('message contents are valid', () => {
-  ['noHouse', 'outOfCoverage'].forEach((key) =>
+  ['noHouse', 'outOfCoverage', 'noForecast'].forEach((key) =>
     LANGUAGES.forEach((language) =>
       assert.deepEqual(validateWidgetContent(messageContent(text(key, language), 300)), []),
     ),

@@ -153,9 +153,31 @@ const textOrNull = (value) =>
   typeof value === 'string' && value.trim() !== '' ? value.trim() : null;
 
 /**
+ * @description The end of the EVENT an alert describes. `ends` when the NWS
+ * gives it. Otherwise it depends on the product: a VTEC product (watches,
+ * warnings, advisories) with no `ends` runs until further notice — a river
+ * Flood Warning — and its `expires` is only the time of the next message, so
+ * there is no end; a product without VTEC (Special Weather Statement…) ends
+ * when its message expires.
+ * @param {object} properties - The alert properties.
+ * @returns {string|null} The end, null for "until further notice".
+ * @example
+ * eventEnd({ ends: null, expires: '2026-10-09T18:45:00-05:00', parameters: {} });
+ */
+function eventEnd(properties) {
+  const ends = textOrNull(properties.ends);
+  if (ends !== null) {
+    return ends;
+  }
+  const vtec = properties.parameters?.VTEC;
+  return Array.isArray(vtec) && vtec.length > 0 ? null : textOrNull(properties.expires);
+}
+
+/**
  * @description Normalize the alert features of /alerts/active: actual alerts
- * only (no tests, no exercises), cancellations and expired ones dropped,
- * sorted the most serious first.
+ * only (no tests, no exercises), cancellations and ended ones dropped, sorted
+ * the most serious first. `end` is the end of the event (see eventEnd()), null
+ * until further notice.
  * @param {Array<object>} features - The GeoJSON features.
  * @param {number} [now] - Current time in ms.
  * @returns {Array<object>} The alerts.
@@ -175,7 +197,7 @@ function readAlerts(features, now = Date.now()) {
     )
     .map((properties) => {
       const { category, pivot } = classifyEvent(properties.event);
-      const end = textOrNull(properties.ends) ?? textOrNull(properties.expires);
+      const end = eventEnd(properties);
       return {
         id: properties.id,
         references: (Array.isArray(properties.references) ? properties.references : [])
@@ -271,6 +293,7 @@ export {
   classifyEvent,
   readLevel,
   readSeverity,
+  eventEnd,
   readAlerts,
   toPivotAlerts,
   countByLevel,

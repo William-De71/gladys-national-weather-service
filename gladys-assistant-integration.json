@@ -105,8 +105,8 @@
             "fr": "Maison"
           },
           "description": {
-            "en": "Name of the house, exactly as shown in Gladys. Leave empty for every house.",
-            "fr": "Nom de la maison, exactement comme dans Gladys. Laissez vide pour toutes les maisons."
+            "en": "Name of the house, exactly as shown in Gladys (case-sensitive). Leave empty for every house.",
+            "fr": "Nom de la maison, exactement comme dans Gladys (majuscules comprises). Laissez vide pour toutes les maisons."
           },
           "required": false
         },
@@ -471,8 +471,8 @@
             "fr": "Maison"
           },
           "description": {
-            "en": "Name of the house, exactly as shown in Gladys. Leave empty for every house.",
-            "fr": "Nom de la maison, exactement comme dans Gladys. Laissez vide pour toutes les maisons."
+            "en": "Name of the house, exactly as shown in Gladys (case-sensitive). Leave empty for every house.",
+            "fr": "Nom de la maison, exactement comme dans Gladys (majuscules comprises). Laissez vide pour toutes les maisons."
           },
           "required": false
         },
@@ -734,8 +734,8 @@
             "fr": "Maison"
           },
           "description": {
-            "en": "Name of the house, as shown in Gladys. Leave empty for the first house with a location.",
-            "fr": "Nom de la maison, tel qu'affiché dans Gladys. Laissez vide pour la première maison localisée."
+            "en": "Name of the house, exactly as shown in Gladys (case-sensitive). Leave empty for the first house with a location.",
+            "fr": "Nom de la maison, exactement comme dans Gladys (majuscules comprises). Laissez vide pour la première maison localisée."
           },
           "required": false
         }
@@ -911,8 +911,8 @@
             "fr": "Maison"
           },
           "description": {
-            "en": "Name of the house, as shown in Gladys. Leave empty for the first house with a location.",
-            "fr": "Nom de la maison, tel qu'affiché dans Gladys. Laissez vide pour la première maison localisée."
+            "en": "Name of the house, exactly as shown in Gladys (case-sensitive). Leave empty for the first house with a location.",
+            "fr": "Nom de la maison, exactement comme dans Gladys (majuscules comprises). Laissez vide pour la première maison localisée."
           },
           "required": false
         },
@@ -1109,8 +1109,8 @@
             "fr": "Maison"
           },
           "description": {
-            "en": "Name of the house, as shown in Gladys. Leave empty for the first house with a location.",
-            "fr": "Nom de la maison, tel qu'affiché dans Gladys. Laissez vide pour la première maison localisée."
+            "en": "Name of the house, exactly as shown in Gladys (case-sensitive). Leave empty for the first house with a location.",
+            "fr": "Nom de la maison, exactement comme dans Gladys (majuscules comprises). Laissez vide pour la première maison localisée."
           },
           "required": false
         }
@@ -1264,8 +1264,8 @@
             "fr": "Maison"
           },
           "description": {
-            "en": "Name of the house, as shown in Gladys. Leave empty for the first house with a location.",
-            "fr": "Nom de la maison, tel qu'affiché dans Gladys. Laissez vide pour la première maison localisée."
+            "en": "Name of the house, exactly as shown in Gladys (case-sensitive). Leave empty for the first house with a location.",
+            "fr": "Nom de la maison, exactement comme dans Gladys (majuscules comprises). Laissez vide pour la première maison localisée."
           },
           "required": false
         }
@@ -1291,8 +1291,8 @@
             "fr": "Maison"
           },
           "description": {
-            "en": "Name of the house, as shown in Gladys. Leave empty for the first house with a location.",
-            "fr": "Nom de la maison, tel qu'affiché dans Gladys. Laissez vide pour la première maison localisée."
+            "en": "Name of the house, exactly as shown in Gladys (case-sensitive). Leave empty for the first house with a location.",
+            "fr": "Nom de la maison, exactement comme dans Gladys (majuscules comprises). Laissez vide pour la première maison localisée."
           },
           "required": false
         },
@@ -1327,8 +1327,8 @@
             "fr": "Maison"
           },
           "description": {
-            "en": "Name of the house, as shown in Gladys. Leave empty for the first house with a location.",
-            "fr": "Nom de la maison, tel qu'affiché dans Gladys. Laissez vide pour la première maison localisée."
+            "en": "Name of the house, exactly as shown in Gladys (case-sensitive). Leave empty for the first house with a location.",
+            "fr": "Nom de la maison, exactement comme dans Gladys (majuscules comprises). Laissez vide pour la première maison localisée."
           },
           "required": false
         },

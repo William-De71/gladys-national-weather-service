@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
@@ -68,14 +69,18 @@ function client(routes, options = {}) {
 const POINT_URL = 'https://api.weather.gov/points/39.7456,-97.0892';
 
 test('identifies itself as the NWS requires', () => {
-  assert.equal(
-    buildUserAgent('0.1.0', 'me@example.com'),
-    'gladys-national-weather-service/0.1.0 (https://github.com/William-De71/gladys-national-weather-service, me@example.com)',
+  const { name, version, homepage } = JSON.parse(
+    readFileSync(new URL('../package.json', import.meta.url), 'utf8'),
   );
   assert.equal(
-    buildUserAgent('0.1.0'),
-    'gladys-national-weather-service/0.1.0 (https://github.com/William-De71/gladys-national-weather-service)',
+    buildUserAgent({ name, version, homepage, contact: 'me@example.com' }),
+    `gladys-national-weather-service/${version} (https://github.com/William-De71/gladys-national-weather-service, me@example.com)`,
   );
+  assert.equal(
+    buildUserAgent({ name, version, homepage }),
+    `gladys-national-weather-service/${version} (https://github.com/William-De71/gladys-national-weather-service)`,
+  );
+  assert.equal(buildUserAgent({ name: 'x', version: '1.0.0' }), 'x/1.0.0');
   assert.equal(formatCoordinate(39.745612), '39.7456');
   assert.equal(formatCoordinate(-97.1), '-97.1');
 });
