@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import { validateWidgetContent } from '@gladysassistant/integration-sdk';
 
 import { LANGUAGES, formatPercent, inSentence } from '../src/i18n.js';
@@ -239,4 +239,43 @@ test('percentages and labels inside sentences follow the typography of each lang
   assert.equal(formatPercent(40, 'it'), '40%');
   assert.equal(inSentence('Regen', 'de'), 'Regen');
   assert.equal(inSentence('Lluvia', 'es'), 'lluvia');
+});
+
+const READMES = { en: 'README.md', fr: 'README.fr.md', de: 'README.de.md', es: 'README.es.md' };
+
+test('docs: English and French mandatory, the four languages with the same structure', () => {
+  const headings = (value) => value.split('\n').filter((line) => /^#{1,3} /.test(line)).length;
+  const tables = (value) => value.split('\n').filter((line) => /^\|\s*-/.test(line)).length;
+  const docs = Object.fromEntries(
+    LANGUAGES.map((language) => {
+      const path = new URL(`../docs/${language}.md`, import.meta.url);
+      assert.ok(existsSync(path), `docs/${language}.md is missing`);
+      return [language, readFileSync(path, 'utf8')];
+    }),
+  );
+  for (const language of LANGUAGES) {
+    assert.ok(docs[language].length > 300, `docs/${language}.md is too short`);
+    assert.equal(headings(docs[language]), headings(docs.en), `docs/${language}.md headings`);
+    assert.equal(tables(docs[language]), tables(docs.en), `docs/${language}.md tables`);
+    assert.ok(!docs[language].includes('cover.jpg'), 'the store already shows the cover');
+  }
+});
+
+test('README: one per language, each linking to the three others, with badges and cover', () => {
+  for (const [language, file] of Object.entries(READMES)) {
+    const path = new URL(`../${file}`, import.meta.url);
+    assert.ok(existsSync(path), `${file} is missing`);
+    const content = readFileSync(path, 'utf8');
+    for (const other of Object.values(READMES).filter((name) => name !== file)) {
+      assert.ok(content.includes(`](${other})`), `${file} does not link to ${other}`);
+    }
+    assert.ok(content.includes(`](docs/${language}.md)`), `${file}: user documentation`);
+    assert.match(content, /\n!\[[^\]]+\]\(cover\.jpg\)\n/, `${file}: cover`);
+    // The four badges, the cover right below them.
+    const badges = content.indexOf('img.shields.io/badge/');
+    assert.ok(badges > 0 && badges < content.indexOf('](cover.jpg)'), `${file}: badges first`);
+    for (const badge of ['Apache--2.0', 'github/v/release', 'actions/workflow/status', 'Gladys-']) {
+      assert.ok(content.includes(badge), `${file}: badge ${badge}`);
+    }
+  }
 });

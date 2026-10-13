@@ -22,6 +22,8 @@ Set the **location of each house** in its settings: the alert watch, the scene a
 
 The NWS publishes no UV index.
 
+The NWS writes its texts **in English only**: alert names, forecasters' narratives and bulletins stay in English; everything else follows the language of Gladys (English, French, German or Spanish).
+
 ## Alert levels
 
 | Level         | Meaning                                              |
@@ -81,3 +83,15 @@ Each widget has a **House** setting (empty = first located house), written exact
 | **Contact email**            | —       | the NWS asks every application to identify itself; your email lets it reach you before blocking traffic it finds abusive |
 | **Cache duration (s)**       | 600     | how long a forecast is reused (the NWS refreshes them about once an hour)                                                |
 | **Alert check interval (s)** | 60      | how often the alerts of your houses are checked, 30 to 900 seconds                                                       |
+
+## Troubleshooting
+
+| Symptom                                         | What to do                                                                         |
+| ----------------------------------------------- | ---------------------------------------------------------------------------------- |
+| "No house of Gladys has a location"             | set the location of a house in **Settings → Houses**                               |
+| "Outside the National Weather Service coverage" | the house is not in the United States: Gladys uses another weather provider for it |
+| A scene filtered on a house never fires         | the **House** field must hold the house name exactly, case included                |
+| Nothing fired for an alert after a restart      | alerts already in force when the integration starts are ignored on purpose         |
+| Scene texts in the wrong language               | they follow the last request of Gladys: display one of the widgets once            |
+
+To report a problem, give the version of Gladys and of the integration, the city of the house and the logs of the integration (set `DEBUG=gladys-integration-sdk` for details), on [GitHub](https://github.com/William-De71/gladys-national-weather-service/issues) or in the [forum thread](https://community.gladysassistant.com/t/integration-externe-national-weather-service/11007).

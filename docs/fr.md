@@ -22,7 +22,7 @@ Renseignez la **position de chaque maison** dans ses réglages : la surveillance
 
 Le NWS ne publie pas d'indice UV.
 
-Le NWS rédige ses textes **en anglais uniquement** : noms des alertes, textes des prévisionnistes et bulletins restent en anglais ; tout le reste suit la langue de Gladys.
+Le NWS rédige ses textes **en anglais uniquement** : noms des alertes, textes des prévisionnistes et bulletins restent en anglais ; tout le reste suit la langue de Gladys (anglais, français, allemand ou espagnol).
 
 ## Les niveaux d'alerte américains
 
@@ -83,3 +83,15 @@ Chaque widget a un réglage **Maison** (vide = première maison localisée), à 
 | **Email de contact**                           | —          | le NWS demande à chaque application de s'identifier ; votre email lui permet de vous prévenir avant de bloquer un trafic jugé abusif |
 | **Durée du cache (s)**                         | 600        | durée de réutilisation d'une prévision (le NWS les met à jour environ une fois par heure)                                            |
 | **Intervalle de vérification des alertes (s)** | 60         | fréquence de vérification des alertes de vos maisons, de 30 à 900 secondes                                                           |
+
+## Dépannage
+
+| Symptôme                                                     | Que faire                                                                                |
+| ------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
+| « Aucune maison de Gladys n'est localisée »                  | renseignez la position d'une maison dans **Paramètres → Maisons**                        |
+| « Hors de la zone du National Weather Service »              | la maison n'est pas aux États-Unis : Gladys utilise un autre fournisseur météo pour elle |
+| Une scène filtrée sur une maison ne se déclenche jamais      | le champ **Maison** doit reprendre le nom exact de la maison, majuscules comprises       |
+| Rien ne s'est déclenché pour une alerte après un redémarrage | les alertes déjà en cours au démarrage de l'intégration sont volontairement ignorées     |
+| Textes des scènes dans la mauvaise langue                    | ils suivent la dernière requête de Gladys : affichez une fois l'un des widgets           |
+
+Pour signaler un problème, indiquez la version de Gladys et de l'intégration, la ville de la maison et les logs de l'intégration (`DEBUG=gladys-integration-sdk` pour le détail), sur [GitHub](https://github.com/William-De71/gladys-national-weather-service/issues) ou dans le [fil du forum](https://community.gladysassistant.com/t/integration-externe-national-weather-service/11007).

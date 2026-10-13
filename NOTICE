@@ -1,0 +1,9 @@
+Gladys National Weather Service integration
+Copyright 2026 William Deren
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+The forecasts, observations, alerts and icons it displays come from the
+National Weather Service (NOAA), whose data is a work of the United States
+government. This integration is not affiliated with or endorsed by the
+National Weather Service or NOAA.
