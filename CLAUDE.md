@@ -49,6 +49,7 @@ src/i18n.js             the four languages, typography helpers
 gladys-assistant-integration.json   manifest
 docs/{en,fr,de,es}.md   user documentation, re-hosted by the store
 .github/scripts/release.mjs         version, changelog, bump (tested in test/)
+docs/illustrations/render.sh        regenerates the widget illustrations (docs/assets)
 ```
 
 ## Rules
@@ -84,5 +85,8 @@ docs/{en,fr,de,es}.md   user documentation, re-hosted by the store
 - **Scenes.** Never fire a scene trigger as a consequence of a scene action.
   The first check after a start is a baseline (no event); an update of an
   alert is not a new alert (see alert-watcher.js).
+- **Widget illustrations.** `docs/assets/widgets.<lang>.png` are generated
+  from the widget code by `docs/illustrations/render.sh`: run it again after
+  any change to a widget content, and keep them labelled as illustrations.
 - **Style.** Prettier formats, ESLint catches mistakes. Comments explain why,
   in English. Tests never touch the network.

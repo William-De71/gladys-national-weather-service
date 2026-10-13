@@ -279,3 +279,17 @@ test('README: one per language, each linking to the three others, with badges an
     }
   }
 });
+
+test('README and docs show the generated widget illustration of their language', () => {
+  for (const language of LANGUAGES) {
+    const image = `docs/assets/widgets.${language}.png`;
+    assert.ok(existsSync(new URL(`../${image}`, import.meta.url)), `${image} is missing`);
+    assert.ok(read(`../${READMES[language]}`).includes(`](${image})`), READMES[language]);
+    assert.ok(
+      read(`../docs/${language}.md`).includes(
+        `](https://raw.githubusercontent.com/William-De71/gladys-national-weather-service/main/${image})`,
+      ),
+      `docs/${language}.md`,
+    );
+  }
+});

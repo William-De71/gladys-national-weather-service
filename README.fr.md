@@ -17,6 +17,8 @@ Weather Service**, ses **veilles, alertes et avis** officiels, des **scènes** d
 **Aucune configuration** : l'API du NWS (`api.weather.gov`) est gratuite et sans clé. Installez l'intégration, elle
 fonctionne.
 
+![Les trois widgets : « Alertes NWS » avec une Tornado Warning, deux veilles et un Wind Advisory ; « Prévision NWS détaillée » période par période avec les icônes du NWS ; « NWS heure par heure » en courbe de température — illustration générée, pas une capture d'écran](docs/assets/widgets.fr.png)
+
 Documentation utilisateur : [English](docs/en.md) · [Français](docs/fr.md) · [Deutsch](docs/de.md) ·
 [Español](docs/es.md).
 
@@ -237,7 +239,9 @@ jamais au réseau. Au-delà des tests unitaires :
   perdu lors d'une mise à jour ;
 - `test/i18n.test.js` vérifie les quatre langues (manifeste, textes d'exécution, docs, README) et valide chaque
   widget dans chacune ;
-- `test/release.test.js` couvre le script de release (version, changelog, bump).
+- `test/release.test.js` couvre le script de release (version, changelog, bump) ;
+- `docs/illustrations/render.sh` régénère les illustrations des widgets de `docs/assets` à partir de leur code
+  (Chrome headless, styles du front Gladys) : à relancer après tout changement d'un widget.
 
 Organisation : voir [CLAUDE.md](CLAUDE.md). `gladys_version` vaut `>=5.1.1` (type météo, déclencheurs et actions
 de scène, widgets des intégrations externes).

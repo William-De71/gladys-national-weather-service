@@ -17,6 +17,8 @@ Service**, seine offiziellen **Vorwarnungen, Warnungen und Hinweise**, von Warnu
 **Keine Konfiguration**: Die API des NWS (`api.weather.gov`) ist kostenlos und braucht keinen Schlüssel.
 Installiere die Integration, und sie funktioniert.
 
+![Die drei Widgets: „NWS-Warnungen“ mit einer Tornado Warning, zwei Vorwarnungen und einem Wind Advisory; „NWS-Textvorhersage“ Zeitraum für Zeitraum mit den Symbolen des NWS; „NWS nächste Stunden“ als Temperaturkurve — generierte Illustration, kein Screenshot](docs/assets/widgets.de.png)
+
 Benutzerdokumentation: [English](docs/en.md) · [Français](docs/fr.md) · [Deutsch](docs/de.md) ·
 [Español](docs/es.md).
 
@@ -240,7 +242,9 @@ Netzwerk zu. Über die Unit-Tests hinaus:
   Szenen- oder Widget-Einstellung verloren;
 - `test/i18n.test.js` prüft die vier Sprachen (Manifest, Laufzeittexte, Dokumentation, READMEs) und validiert jedes
   Widget in jeder Sprache;
-- `test/release.test.js` deckt das Release-Skript ab (Version, Changelog, Bump).
+- `test/release.test.js` deckt das Release-Skript ab (Version, Changelog, Bump);
+- `docs/illustrations/render.sh` erzeugt die Widget-Illustrationen in `docs/assets` aus dem Code der Widgets neu
+  (Headless-Chrome, Styles des Gladys-Frontends): nach jeder Änderung an einem Widget erneut ausführen.
 
 Aufbau: siehe [CLAUDE.md](CLAUDE.md). `gladys_version` ist `>=5.1.1` (Wettertyp, Szenen-Auslöser und -Aktionen,
 Dashboard-Widgets externer Integrationen).

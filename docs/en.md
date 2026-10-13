@@ -68,6 +68,8 @@ Every action has a **Summary** output, a sentence ready to send in a message.
 
 ## Dashboard widgets
 
+![The three widgets: "NWS alerts" with a Tornado Warning, two watches and a Wind Advisory; "NWS text forecast" period by period with the NWS icons; "NWS next hours" as a temperature curve — generated illustration, not a screenshot](https://raw.githubusercontent.com/William-De71/gladys-national-weather-service/main/docs/assets/widgets.en.png)
+
 | Widget                | Content                                                                                                                                       |
 | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
 | **NWS alerts**        | warnings / watches / advisories counters, then each alert; tap one for its full text and instructions. Refreshed as soon as an alert changes. |

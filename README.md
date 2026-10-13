@@ -16,6 +16,8 @@ houses in the United States, built on `@gladysassistant/integration-sdk` 0.15.
 **Zero configuration**: the NWS API (`api.weather.gov`) is free and needs no key. Install the integration and it
 works.
 
+![The three widgets: "NWS alerts" with a Tornado Warning, two watches and a Wind Advisory; "NWS text forecast" period by period with the NWS icons; "NWS next hours" as a temperature curve — generated illustration, not a screenshot](docs/assets/widgets.en.png)
+
 User documentation: [English](docs/en.md) · [Français](docs/fr.md) · [Deutsch](docs/de.md) · [Español](docs/es.md).
 
 > Community integration, not affiliated with or endorsed by the National Weather Service or NOAA.
@@ -228,7 +230,9 @@ network. Beyond the unit tests:
   keys with `test/fixtures/discovery.baseline.json` (version 1.0.0): no scene or widget setting is lost on an update;
 - `test/i18n.test.js` checks the four languages (manifest, runtime texts, docs, READMEs) and validates every widget
   in each;
-- `test/release.test.js` covers the release script (version, changelog, bump).
+- `test/release.test.js` covers the release script (version, changelog, bump);
+- `docs/illustrations/render.sh` regenerates the widget illustrations of `docs/assets` from the widget code
+  (headless Chrome, the Gladys front styles): run it after any change to a widget.
 
 Layout: see [CLAUDE.md](CLAUDE.md). `gladys_version` is `>=5.1.1` (weather type, scene triggers and actions,
 dashboard widgets of external integrations).

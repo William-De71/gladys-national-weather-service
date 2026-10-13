@@ -68,6 +68,8 @@ Jede Aktion hat eine Ausgabe **Zusammenfassung**, einen Satz, fertig zum Versend
 
 ## Dashboard-Widgets
 
+![Die drei Widgets: „NWS-Warnungen“ mit einer Tornado Warning, zwei Vorwarnungen und einem Wind Advisory; „NWS-Textvorhersage“ Zeitraum für Zeitraum mit den Symbolen des NWS; „NWS nächste Stunden“ als Temperaturkurve — generierte Illustration, kein Screenshot](https://raw.githubusercontent.com/William-De71/gladys-national-weather-service/main/docs/assets/widgets.de.png)
+
 | Widget                  | Inhalt                                                                                                                                                                      |
 | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **NWS-Warnungen**       | Zähler für Warnings / Watches / Advisories, dann jede Warnung; tippe auf eine für ihren vollständigen Text und die Hinweise. Aktualisiert, sobald sich eine Warnung ändert. |

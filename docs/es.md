@@ -68,6 +68,8 @@ Cada acción tiene una salida **Resumen**, una frase lista para enviar en un men
 
 ## Widgets del panel
 
+![Los tres widgets: «Alertas NWS» con una Tornado Warning, dos vigilancias y un Wind Advisory; «Previsión NWS detallada» periodo a periodo con los iconos del NWS; «NWS próximas horas» en curva de temperatura — ilustración generada, no una captura de pantalla](https://raw.githubusercontent.com/William-De71/gladys-national-weather-service/main/docs/assets/widgets.es.png)
+
 | Widget                      | Contenido                                                                                                                                                         |
 | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Alertas NWS**             | contadores de warnings / watches / advisories y luego cada alerta; toque una para ver su texto completo e instrucciones. Actualizado en cuanto una alerta cambia. |
