@@ -1,3 +1,20 @@
+# Changelog
+
+All notable changes to this integration are documented in this file. The format
+follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions
+follow [Semantic Versioning](https://semver.org/). This file is generated at
+each release from the Conventional Commits: do not edit it by hand.
+
+## [1.1.0] - 2026-10-13
+
+### Added
+
+- **i18n:** the integration, its widgets and scene texts in German and Spanish ([408e27c](https://github.com/William-De71/gladys-national-weather-service/commit/408e27c7999edd2a89644d69bbbc466459f393f3))
+
+### Fixed
+
+- **widgets:** show the kind and end of each alert, and each forecast period's temperature first ([7a0946b](https://github.com/William-De71/gladys-national-weather-service/commit/7a0946b73be539f87e3ad98759bad6e94ba9ef3a))
+
 ## 1.0.0 (2026-10-10)
 
 ### Features
@@ -12,3 +29,5 @@
 ### Miscellaneous
 
 * use the National Weather Service logo as the cover ([ae8b04f](https://github.com/William-De71/gladys-national-weather-service/commit/ae8b04ff6b064020ad1791f44416021efdf701dd))
+
+[1.1.0]: https://github.com/William-De71/gladys-national-weather-service/compare/v1.0.0...v1.1.0
