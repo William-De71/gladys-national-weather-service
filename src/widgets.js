@@ -75,6 +75,7 @@ const TEXTS = {
   warnings: { en: 'Warnings', fr: 'Alertes', de: 'Warnungen', es: 'Avisos' },
   watches: { en: 'Watches', fr: 'Veilles', de: 'Vorwarnungen', es: 'Vigilancias' },
   advisories: { en: 'Advisories', fr: 'Avis', de: 'Hinweise', es: 'Advertencias' },
+  from: { en: 'from', fr: 'dès', de: 'ab', es: 'desde' },
   until: { en: 'until', fr: 'jusqu’à', de: 'bis', es: 'hasta' },
   fullForecast: {
     en: 'Full forecast',
@@ -276,11 +277,12 @@ const SEVERITY_COLORS = {
  * @param {string|null} options.place - "Linn, KS".
  * @param {string|null} options.timeZone - The time zone of the house.
  * @param {string} options.language - The user language.
+ * @param {number} [options.now] - Current time in ms.
  * @returns {object} The widget content.
  * @example
  * buildAlertsWidget({ alerts, house, place: 'Linn, KS', timeZone, language: 'en' });
  */
-function buildAlertsWidget({ alerts, house, place, timeZone, language }) {
+function buildAlertsWidget({ alerts, house, place, timeZone, language, now = Date.now() }) {
   const components = [
     { type: 'text', variant: 'caption', text: place ? `${house.name} · ${place}` : house.name },
   ];
@@ -324,8 +326,14 @@ function buildAlertsWidget({ alerts, house, place, timeZone, language }) {
         display: 'list',
         items: alerts.slice(0, MAX_LIST_ITEMS).map((alert) => {
           const until = alert.end ? formatDayTime(alert.end, timeZone, language) : null;
+          // A watch often starts later: its start is worth the room then.
+          const from =
+            alert.start && Date.parse(alert.start) > now
+              ? formatDayTime(alert.start, timeZone, language)
+              : null;
           const subtitle = [
             localize(CATEGORY_LABELS, alert.category, language),
+            from ? `${text('from', language)} ${from}` : null,
             until ? `${text('until', language)} ${until}` : null,
           ]
             .filter(Boolean)
@@ -344,9 +352,6 @@ function buildAlertsWidget({ alerts, house, place, timeZone, language }) {
               { url: forecastPageUrl(house.latitude, house.longitude), label: 'weather.gov' },
             ],
           };
-          if (alert.start) {
-            item.date = alert.start;
-          }
           if (body) {
             item.description = truncate(body, MAX_DESCRIPTION);
           }
@@ -441,7 +446,10 @@ function buildForecastWidget({
         : conditionLabel(readCondition(period.icon, period.shortForecast), language);
     const item = {
       title: periodTitle(period, today, language),
-      subtitle: truncate(`${sky} · ${temperature}`, 60),
+      // The temperature first: the front shows the subtitle on one line, and
+      // a long NWS short forecast ("Sunny then Slight Chance Showers And
+      // Thunderstorms") would push it out of sight.
+      subtitle: truncate(`${temperature} · ${sky}`, 60),
     };
     const chance = period.probabilityOfPrecipitation?.value;
     if (typeof chance === 'number' && chance >= 20) {

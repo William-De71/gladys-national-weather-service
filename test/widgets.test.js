@@ -97,6 +97,36 @@ test('alerts widget: counters, then each alert with its full text', () => {
   assert.equal(item.badge.text, 'Alerte');
 });
 
+test('alerts widget: the list shows the kind, the start of a later watch and the end', () => {
+  // The front shows an item's `date` INSTEAD of its subtitle in the list:
+  // no `date`, so the kind and the end of each alert stay visible.
+  const alerts = readAlerts(
+    [
+      feature({ id: 'tor' }),
+      feature({
+        id: 'watch',
+        event: 'Winter Storm Watch',
+        severity: 'Moderate',
+        onset: '2026-10-10T14:00:00-05:00',
+        ends: '2026-10-11T06:00:00-05:00',
+      }),
+    ],
+    NOW,
+  );
+  const content = buildAlertsWidget({
+    alerts,
+    house: HOUSE,
+    place: null,
+    timeZone: TIME_ZONE,
+    language: 'en',
+    now: NOW,
+  });
+  const items = content.components.find((component) => component.type === 'card-list').items;
+  assert.ok(items.every((item) => item.date === undefined));
+  assert.equal(items[0].subtitle, 'Tornado · until Fri 6:45 PM');
+  assert.equal(items[1].subtitle, 'Winter storm · from Sat 2:00 PM · until Sun 6:00 AM');
+});
+
 test('alerts widget: a calm state when nothing is in force', () => {
   const content = buildAlertsWidget({
     alerts: [],
@@ -171,7 +201,7 @@ test('forecast widget: the NWS narrative period by period', () => {
   assert.equal(english.components[0].text, 'Home · Linn, KS · updated 5:41 PM');
   const [tonight, saturday] = english.components[1].items;
   assert.equal(tonight.title, 'Tonight');
-  assert.equal(tonight.subtitle, 'Clear · Low 63°F');
+  assert.equal(tonight.subtitle, 'Low 63°F · Clear');
   assert.equal(tonight.image, 'nws-night-skc');
   assert.equal(saturday.title, 'Saturday');
   assert.match(saturday.description, /high near 87/);
@@ -194,6 +224,24 @@ test('forecast widget: a chance of rain badge from 20 %', () => {
   const [first, second] = content.components[1].items;
   assert.deepEqual(first.badge, { text: '40 %', color: 'info' });
   assert.equal(second.badge, undefined);
+});
+
+test('forecast widget: the temperature comes first, a long sky text never hides it', () => {
+  const { forecast } = fixtures();
+  const content = buildForecastWidget({
+    forecast,
+    house: HOUSE,
+    place: null,
+    timeZone: TIME_ZONE,
+    language: 'en',
+    units: 'us',
+    showIcons: false,
+    now: NOW,
+  });
+  const items = content.components.find((component) => component.type === 'card-list').items;
+  const tuesday = items.find((item) => item.title === 'Tuesday');
+  assert.match(tuesday.subtitle, /^High \d+°F · Sunny then Slight Chance .*…$/);
+  assert.ok(items.every((item) => item.subtitle.length <= 60));
 });
 
 test('names the periods in French', () => {
