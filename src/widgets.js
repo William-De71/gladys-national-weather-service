@@ -32,6 +32,7 @@ import { buildHour, upcomingPeriods } from './weather.js';
 import { readGrid } from './gridpoint.js';
 import { formatDayTime, formatTime, localDate, periodDate, weekdayName } from './time.js';
 import { displaySpeed, degreesToCompass, unitLabels } from './units.js';
+import { formatPercent } from './i18n.js';
 
 const WIDGETS = {
   ALERTS: 'alerts',
@@ -53,50 +54,84 @@ const MAX_DESCRIPTION = 2000;
 const RAIN_CHANCE_THRESHOLD = 30;
 
 const TEXTS = {
-  noAlertTitle: { en: 'No active alert', fr: 'Aucune alerte' },
+  noAlertTitle: {
+    en: 'No active alert',
+    fr: 'Aucune alerte',
+    de: 'Keine aktive Warnung',
+    es: 'Ninguna alerta activa',
+  },
   noAlertBody: {
     en: 'No watch, warning or advisory is in force for this location.',
     fr: 'Aucune veille, alerte ni avis n’est en cours pour ce lieu.',
+    de: 'Für diesen Ort gilt keine Vorwarnung, Warnung und kein Hinweis.',
+    es: 'No hay ninguna vigilancia, aviso ni advertencia en vigor para este lugar.',
   },
-  active: { en: 'Active alerts', fr: 'Alertes en cours' },
-  warnings: { en: 'Warnings', fr: 'Alertes' },
-  watches: { en: 'Watches', fr: 'Veilles' },
-  advisories: { en: 'Advisories', fr: 'Avis' },
-  until: { en: 'until', fr: 'jusqu’à' },
-  fullForecast: { en: 'Full forecast', fr: 'Prévisions complètes' },
+  active: {
+    en: 'Active alerts',
+    fr: 'Alertes en cours',
+    de: 'Aktive Warnungen',
+    es: 'Alertas activas',
+  },
+  warnings: { en: 'Warnings', fr: 'Alertes', de: 'Warnungen', es: 'Avisos' },
+  watches: { en: 'Watches', fr: 'Veilles', de: 'Vorwarnungen', es: 'Vigilancias' },
+  advisories: { en: 'Advisories', fr: 'Avis', de: 'Hinweise', es: 'Advertencias' },
+  until: { en: 'until', fr: 'jusqu’à', de: 'bis', es: 'hasta' },
+  fullForecast: {
+    en: 'Full forecast',
+    fr: 'Prévisions complètes',
+    de: 'Vollständige Vorhersage',
+    es: 'Previsión completa',
+  },
   outOfCoverage: {
     en: 'This house is outside the National Weather Service coverage (United States only).',
     fr: 'Cette maison est hors de la zone du National Weather Service (États-Unis uniquement).',
+    de: 'Dieses Zuhause liegt außerhalb des Gebiets des National Weather Service (nur Vereinigte Staaten).',
+    es: 'Esta casa está fuera de la cobertura del National Weather Service (solo Estados Unidos).',
   },
   noForecast: {
     en: 'The National Weather Service has no hourly forecast to come for this house right now.',
     fr: 'Le National Weather Service ne fournit pas de prévision horaire à venir pour cette maison en ce moment.',
+    de: 'Der National Weather Service hat für dieses Zuhause gerade keine kommende stündliche Vorhersage.',
+    es: 'El National Weather Service no tiene ahora mismo previsión por horas para esta casa.',
   },
   noHouse: {
     en: 'No house of Gladys has a location: set it in the house settings.',
     fr: 'Aucune maison de Gladys n’est localisée : renseignez sa position dans ses réglages.',
+    de: 'Kein Zuhause in Gladys hat einen Standort: Lege ihn in den Einstellungen des Zuhauses fest.',
+    es: 'Ninguna casa de Gladys tiene ubicación: defínala en los ajustes de la casa.',
   },
-  updated: { en: 'updated', fr: 'mis à jour à' },
-  high: { en: 'High', fr: 'Max' },
-  low: { en: 'Low', fr: 'Min' },
-  now: { en: 'Now', fr: 'Actuel' },
-  temperature: { en: 'Temperature', fr: 'Température' },
-  feelsLike: { en: 'Feels like', fr: 'Ressenti' },
-  rainChance: { en: 'Chance of rain', fr: 'Risque de pluie' },
-  maxChance: { en: 'Max chance', fr: 'Risque max' },
-  total: { en: 'Total', fr: 'Cumul' },
-  firstRain: { en: 'First rain', fr: '1re pluie' },
-  none: { en: 'None', fr: 'Aucune' },
-  wind: { en: 'Wind', fr: 'Vent' },
-  gusts: { en: 'Gusts', fr: 'Rafales' },
-  maxWind: { en: 'Max wind', fr: 'Vent max' },
-  maxGust: { en: 'Max gust', fr: 'Rafale max' },
-  direction: { en: 'Direction', fr: 'Direction' },
-  nextHours: { en: 'Next {n} hours', fr: '{n} prochaines heures' },
-  today: { en: 'Today', fr: 'Aujourd’hui' },
-  tonight: { en: 'Tonight', fr: 'Cette nuit' },
-  overnight: { en: 'Overnight', fr: 'Fin de nuit' },
-  nightOf: { en: '{day} Night', fr: 'Nuit de {day}' },
+  updated: { en: 'updated', fr: 'mis à jour à', de: 'aktualisiert um', es: 'actualizado a las' },
+  high: { en: 'High', fr: 'Max', de: 'Max.', es: 'Máx.' },
+  low: { en: 'Low', fr: 'Min', de: 'Min.', es: 'Mín.' },
+  now: { en: 'Now', fr: 'Actuel', de: 'Jetzt', es: 'Ahora' },
+  temperature: { en: 'Temperature', fr: 'Température', de: 'Temperatur', es: 'Temperatura' },
+  feelsLike: { en: 'Feels like', fr: 'Ressenti', de: 'Gefühlt', es: 'Sensación' },
+  rainChance: {
+    en: 'Chance of rain',
+    fr: 'Risque de pluie',
+    de: 'Regenrisiko',
+    es: 'Prob. de lluvia',
+  },
+  maxChance: { en: 'Max chance', fr: 'Risque max', de: 'Max. Risiko', es: 'Prob. máx.' },
+  total: { en: 'Total', fr: 'Cumul', de: 'Summe', es: 'Total' },
+  firstRain: { en: 'First rain', fr: '1re pluie', de: 'Erster Regen', es: '1.ª lluvia' },
+  none: { en: 'None', fr: 'Aucune', de: 'Keiner', es: 'Ninguna' },
+  wind: { en: 'Wind', fr: 'Vent', de: 'Wind', es: 'Viento' },
+  gusts: { en: 'Gusts', fr: 'Rafales', de: 'Böen', es: 'Rachas' },
+  maxWind: { en: 'Max wind', fr: 'Vent max', de: 'Max. Wind', es: 'Viento máx.' },
+  maxGust: { en: 'Max gust', fr: 'Rafale max', de: 'Max. Böe', es: 'Racha máx.' },
+  direction: { en: 'Direction', fr: 'Direction', de: 'Richtung', es: 'Dirección' },
+  nextHours: {
+    en: 'Next {n} hours',
+    fr: '{n} prochaines heures',
+    de: 'Nächste {n} Stunden',
+    es: 'Próximas {n} horas',
+  },
+  today: { en: 'Today', fr: 'Aujourd’hui', de: 'Heute', es: 'Hoy' },
+  tonight: { en: 'Tonight', fr: 'Cette nuit', de: 'Heute Nacht', es: 'Esta noche' },
+  overnight: { en: 'Overnight', fr: 'Fin de nuit', de: 'Bis zum Morgen', es: 'Madrugada' },
+  // German glues the weekday to the night ("Samstagnacht").
+  nightOf: { en: '{day} Night', fr: 'Nuit de {day}', de: '{day}nacht', es: 'Noche del {day}' },
 };
 
 /**
@@ -333,11 +368,11 @@ function buildAlertsWidget({ alerts, house, place, timeZone, language }) {
 
 /**
  * @description The title of a forecast period in the user's language: the NWS
- * name in English ("Saturday Night"), rebuilt from the date in French. After
- * midnight the NWS lists the end of the night ("Overnight", starting in the
- * small hours) then the coming night ("Tonight"), both dated today: the first
- * one is told apart by its local start hour (the period time carries its
- * offset).
+ * name in English ("Saturday Night"), rebuilt from the date in the other
+ * languages. After midnight the NWS lists the end of the night ("Overnight",
+ * starting in the small hours) then the coming night ("Tonight"), both dated
+ * today: the first one is told apart by its local start hour (the period time
+ * carries its offset).
  * @param {object} period - The /forecast period.
  * @param {string} today - The local date of today, YYYY-MM-DD.
  * @param {string} language - The user language.
@@ -411,7 +446,7 @@ function buildForecastWidget({
     const chance = period.probabilityOfPrecipitation?.value;
     if (typeof chance === 'number' && chance >= 20) {
       const rounded = Math.round(chance);
-      item.badge = { text: language === 'fr' ? `${rounded} %` : `${rounded}%`, color: 'info' };
+      item.badge = { text: formatPercent(rounded, language), color: 'info' };
     }
     if (period.detailedForecast) {
       item.description = truncate(period.detailedForecast, MAX_DESCRIPTION);
@@ -708,6 +743,7 @@ function buildHourlyWidget({
 
 export {
   WIDGETS,
+  TEXTS,
   TTL_SECONDS,
   HOURLY_METRICS,
   HOURLY_SPANS,

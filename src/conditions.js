@@ -213,32 +213,57 @@ function isDayFromIcon(url) {
 
 // Localized labels of the pivot conditions, for the scene outputs and widgets.
 const CONDITION_LABELS = {
-  clear: { en: 'Clear', fr: 'Ciel dégagé' },
-  'partly-cloudy': { en: 'Partly cloudy', fr: 'Éclaircies' },
-  cloud: { en: 'Cloudy', fr: 'Nuageux' },
-  fog: { en: 'Fog', fr: 'Brouillard' },
-  drizzle: { en: 'Drizzle', fr: 'Bruine' },
-  rain: { en: 'Rain', fr: 'Pluie' },
-  pouring: { en: 'Heavy rain', fr: 'Pluie forte' },
-  sleet: { en: 'Rain and snow', fr: 'Pluie et neige' },
-  hail: { en: 'Hail', fr: 'Grêle' },
-  snow: { en: 'Snow', fr: 'Neige' },
-  thunderstorm: { en: 'Thunderstorms', fr: 'Orages' },
-  wind: { en: 'Windy', fr: 'Venteux' },
-  night: { en: 'Night', fr: 'Nuit' },
-  unknown: { en: 'Unknown', fr: 'Inconnu' },
-  'freezing-rain': { en: 'Freezing rain', fr: 'Pluie verglaçante' },
-  'freezing-fog': { en: 'Freezing fog', fr: 'Brouillard givrant' },
-  'snow-thunderstorm': { en: 'Thundersnow', fr: 'Orage de neige' },
-  sandstorm: { en: 'Dust storm', fr: 'Tempête de poussière' },
-  tornado: { en: 'Tornado', fr: 'Tornade' },
-  hurricane: { en: 'Hurricane', fr: 'Ouragan' },
+  clear: { en: 'Clear', fr: 'Ciel dégagé', de: 'Klarer Himmel', es: 'Cielo despejado' },
+  'partly-cloudy': {
+    en: 'Partly cloudy',
+    fr: 'Éclaircies',
+    de: 'Leicht bewölkt',
+    es: 'Parcialmente nublado',
+  },
+  cloud: { en: 'Cloudy', fr: 'Nuageux', de: 'Bewölkt', es: 'Nublado' },
+  fog: { en: 'Fog', fr: 'Brouillard', de: 'Nebel', es: 'Niebla' },
+  drizzle: { en: 'Drizzle', fr: 'Bruine', de: 'Nieselregen', es: 'Llovizna' },
+  rain: { en: 'Rain', fr: 'Pluie', de: 'Regen', es: 'Lluvia' },
+  pouring: { en: 'Heavy rain', fr: 'Pluie forte', de: 'Starkregen', es: 'Lluvia intensa' },
+  sleet: { en: 'Rain and snow', fr: 'Pluie et neige', de: 'Schneeregen', es: 'Aguanieve' },
+  hail: { en: 'Hail', fr: 'Grêle', de: 'Hagel', es: 'Granizo' },
+  snow: { en: 'Snow', fr: 'Neige', de: 'Schnee', es: 'Nieve' },
+  thunderstorm: { en: 'Thunderstorms', fr: 'Orages', de: 'Gewitter', es: 'Tormenta' },
+  wind: { en: 'Windy', fr: 'Venteux', de: 'Windig', es: 'Ventoso' },
+  night: { en: 'Night', fr: 'Nuit', de: 'Nacht', es: 'Noche' },
+  unknown: { en: 'Unknown', fr: 'Inconnu', de: 'Unbekannt', es: 'Desconocido' },
+  'freezing-rain': {
+    en: 'Freezing rain',
+    fr: 'Pluie verglaçante',
+    de: 'Gefrierender Regen',
+    es: 'Lluvia helada',
+  },
+  'freezing-fog': {
+    en: 'Freezing fog',
+    fr: 'Brouillard givrant',
+    de: 'Gefrierender Nebel',
+    es: 'Niebla helada',
+  },
+  'snow-thunderstorm': {
+    en: 'Thundersnow',
+    fr: 'Orage de neige',
+    de: 'Gewittrige Schneeschauer',
+    es: 'Chubascos de nieve con tormenta',
+  },
+  sandstorm: {
+    en: 'Dust storm',
+    fr: 'Tempête de poussière',
+    de: 'Staubsturm',
+    es: 'Tormenta de polvo',
+  },
+  tornado: { en: 'Tornado', fr: 'Tornade', de: 'Tornado', es: 'Tornado' },
+  hurricane: { en: 'Hurricane', fr: 'Ouragan', de: 'Hurrikan', es: 'Huracán' },
 };
 
 /**
  * @description The localized label of a pivot condition.
  * @param {string} condition - The condition.
- * @param {string} language - 'fr' or 'en' (anything else falls back to English).
+ * @param {string} language - 'en', 'fr', 'de' or 'es' (anything else falls back to English).
  * @returns {string} The label.
  * @example
  * conditionLabel('rain', 'fr'); // -> 'Pluie'

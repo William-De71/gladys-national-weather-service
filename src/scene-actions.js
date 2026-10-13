@@ -31,6 +31,7 @@ import {
   parseWindSpeed,
   unitLabels,
 } from './units.js';
+import { inSentence } from './i18n.js';
 
 const SCENE_ACTIONS = {
   GET_ALERTS: 'get_alerts',
@@ -40,6 +41,76 @@ const SCENE_ACTIONS = {
 
 // The NWS forecast covers 7 days: today (or tonight) and the 6 that follow.
 const MAX_DAY_OFFSET = 6;
+
+// The `summary` sentences, per language (English for any other).
+const SENTENCES = {
+  en: {
+    noAlert: ({ house }) => `No NWS alert in force for ${house}.`,
+    alerts: ({ count, house, events, top, until }) =>
+      `${count} NWS alert(s) for ${house}: ${events}. Most serious: ${top}${until ? ` until ${until}` : ''}.`,
+    today: 'today',
+    tomorrow: 'tomorrow',
+    forecast: ({ name, house, sky }) => `Weather ${name} in ${house}: ${sky}`,
+    high: (value) => `high ${value}`,
+    low: (value) => `low ${value}`,
+    rain: (value) => `${value}% chance of rain`,
+    current: ({ house, temperature, sky }) => `In ${house}: ${temperature}, ${sky}`,
+    humidity: (value) => `humidity ${value}%`,
+    wind: (value) => `wind ${value}`,
+    observed: (time) => ` (observed at ${time}).`,
+    forecasted: ' (forecast).',
+  },
+  fr: {
+    noAlert: ({ house }) => `Aucune alerte NWS en cours pour ${house}.`,
+    alerts: ({ count, house, events, top, until }) =>
+      `${count} alerte(s) NWS pour ${house} : ${events}. La plus grave : ${top}${until ? ` jusqu'à ${until}` : ''}.`,
+    today: "aujourd'hui",
+    tomorrow: 'demain',
+    forecast: ({ name, house, sky }) => `Météo ${name} à ${house} : ${sky}`,
+    high: (value) => `max ${value}`,
+    low: (value) => `min ${value}`,
+    rain: (value) => `${value} % de risque de pluie`,
+    current: ({ house, temperature, sky }) => `À ${house} : ${temperature}, ${sky}`,
+    humidity: (value) => `humidité ${value} %`,
+    wind: (value) => `vent ${value}`,
+    observed: (time) => ` (relevé de ${time}).`,
+    forecasted: ' (prévision).',
+  },
+  de: {
+    noAlert: ({ house }) => `Keine NWS-Warnung aktiv für ${house}.`,
+    alerts: ({ count, house, events, top, until }) =>
+      `${count} NWS-Warnung(en) für ${house}: ${events}. Die schwerste: ${top}${until ? ` bis ${until}` : ''}.`,
+    today: 'heute',
+    tomorrow: 'morgen',
+    forecast: ({ name, house, sky }) => `Wetter ${name} in ${house}: ${sky}`,
+    high: (value) => `Höchstwert ${value}`,
+    low: (value) => `Tiefstwert ${value}`,
+    rain: (value) => `${value} % Regenwahrscheinlichkeit`,
+    current: ({ house, temperature, sky }) => `In ${house}: ${temperature}, ${sky}`,
+    humidity: (value) => `Luftfeuchtigkeit ${value} %`,
+    wind: (value) => `Wind ${value}`,
+    observed: (time) => ` (gemessen um ${time}).`,
+    forecasted: ' (Vorhersage).',
+  },
+  es: {
+    noAlert: ({ house }) => `Ninguna alerta NWS en vigor para ${house}.`,
+    alerts: ({ count, house, events, top, until }) =>
+      `${count} alerta(s) NWS para ${house}: ${events}. La más grave: ${top}${until ? ` hasta ${until}` : ''}.`,
+    today: 'hoy',
+    tomorrow: 'mañana',
+    forecast: ({ name, house, sky }) => `Tiempo ${name} en ${house}: ${sky}`,
+    high: (value) => `máxima ${value}`,
+    low: (value) => `mínima ${value}`,
+    rain: (value) => `${value} % de probabilidad de lluvia`,
+    current: ({ house, temperature, sky }) => `En ${house}: ${temperature}, ${sky}`,
+    humidity: (value) => `humedad ${value} %`,
+    wind: (value) => `viento ${value}`,
+    observed: (time) => ` (observado a las ${time}).`,
+    forecasted: ' (previsión).',
+  },
+};
+
+const sentences = (language) => SENTENCES[language] ?? SENTENCES.en;
 
 /**
  * @description Read the "day" field of get_forecast: an offset from 0 (today) to 6.
@@ -62,7 +133,7 @@ function readDayOffset(value) {
  * @param {Array<object>} options.alerts - The readAlerts() alerts (most serious first).
  * @param {string} options.house - The house name.
  * @param {string|null} options.timeZone - The time zone of the house.
- * @param {string} options.language - 'fr' or 'en'.
+ * @param {string} options.language - 'en', 'fr', 'de' or 'es'.
  * @returns {object} The outputs.
  * @example
  * buildAlertsOutputs({ alerts, house: 'Home', timeZone: 'America/Chicago', language: 'en' });
@@ -71,19 +142,17 @@ function buildAlertsOutputs({ alerts, house, timeZone, language }) {
   const counts = countByLevel(alerts);
   const top = alerts[0] ?? null;
   const events = [...new Set(alerts.map((alert) => alert.event))].join(', ');
-  let summary;
-  if (top === null) {
-    summary =
-      language === 'fr'
-        ? `Aucune alerte NWS en cours pour ${house}.`
-        : `No NWS alert in force for ${house}.`;
-  } else {
-    const until = top.end ? formatDayTime(top.end, timeZone, language) : null;
-    summary =
-      language === 'fr'
-        ? `${alerts.length} alerte(s) NWS pour ${house} : ${events}. La plus grave : ${top.event}${until ? ` jusqu'à ${until}` : ''}.`
-        : `${alerts.length} NWS alert(s) for ${house}: ${events}. Most serious: ${top.event}${until ? ` until ${until}` : ''}.`;
-  }
+  const say = sentences(language);
+  const summary =
+    top === null
+      ? say.noAlert({ house })
+      : say.alerts({
+          count: alerts.length,
+          house,
+          events,
+          top: top.event,
+          until: top.end ? formatDayTime(top.end, timeZone, language) : null,
+        });
   return {
     count: alerts.length,
     has_alert: alerts.length > 0,
@@ -112,7 +181,7 @@ function buildAlertsOutputs({ alerts, house, timeZone, language }) {
  * @param {object} options.forecast - The /forecast payload, in the requested units.
  * @param {string|null} options.timeZone - The time zone of the house.
  * @param {string} options.house - The house name.
- * @param {string} options.language - 'fr' or 'en'.
+ * @param {string} options.language - 'en', 'fr', 'de' or 'es'.
  * @param {string} options.units - 'metric' or 'us'.
  * @param {unknown} options.day - The "day" field.
  * @param {number} [options.now] - Current time in ms.
@@ -152,32 +221,19 @@ function buildForecastOutputs({
   const precipitationProbability = chances.length > 0 ? percent(Math.max(...chances)) : null;
   const wind = displaySpeed(parseWindSpeed(main.windSpeed, units), units) ?? null;
   const labels = unitLabels(units);
-  const name =
-    offset === 0
-      ? language === 'fr'
-        ? "aujourd'hui"
-        : 'today'
-      : offset === 1
-        ? language === 'fr'
-          ? 'demain'
-          : 'tomorrow'
-        : weekdayName(date, language);
+  const say = sentences(language);
+  const name = offset === 0 ? say.today : offset === 1 ? say.tomorrow : weekdayName(date, language);
 
-  const parts = [];
-  if (language === 'fr') {
-    parts.push(`Météo ${name} à ${house} : ${conditionLabel(condition, 'fr').toLowerCase()}`);
-    if (temperatureMax !== null)
-      parts.push(`max ${Math.round(temperatureMax)}${labels.temperature}`);
-    if (temperatureMin !== null)
-      parts.push(`min ${Math.round(temperatureMin)}${labels.temperature}`);
-    if (precipitationProbability) parts.push(`${precipitationProbability} % de risque de pluie`);
-  } else {
-    parts.push(`Weather ${name} in ${house}: ${conditionLabel(condition, 'en').toLowerCase()}`);
-    if (temperatureMax !== null)
-      parts.push(`high ${Math.round(temperatureMax)}${labels.temperature}`);
-    if (temperatureMin !== null)
-      parts.push(`low ${Math.round(temperatureMin)}${labels.temperature}`);
-    if (precipitationProbability) parts.push(`${precipitationProbability}% chance of rain`);
+  const sky = inSentence(conditionLabel(condition, language), language);
+  const parts = [say.forecast({ name, house, sky })];
+  if (temperatureMax !== null) {
+    parts.push(say.high(`${Math.round(temperatureMax)}${labels.temperature}`));
+  }
+  if (temperatureMin !== null) {
+    parts.push(say.low(`${Math.round(temperatureMin)}${labels.temperature}`));
+  }
+  if (precipitationProbability) {
+    parts.push(say.rain(precipitationProbability));
   }
 
   return {
@@ -204,7 +260,7 @@ function buildForecastOutputs({
  * @param {object|null} options.observation - The observation properties (null: forecast only).
  * @param {string} options.house - The house name.
  * @param {string|null} options.timeZone - The time zone of the house.
- * @param {string} options.language - 'fr' or 'en'.
+ * @param {string} options.language - 'en', 'fr', 'de' or 'es'.
  * @param {string} options.units - 'metric' or 'us'.
  * @returns {object} The outputs.
  * @example
@@ -216,23 +272,20 @@ function buildCurrentOutputs({ weather, observation, house, timeZone, language, 
   const windGust = displaySpeed(weather.wind_gust, units) ?? null;
   const direction = degreesToCompass(weather.wind_direction) ?? null;
   const temperature = Math.round(weather.temperature);
-  const label = conditionLabel(weather.weather, language).toLowerCase();
+  const sky = inSentence(conditionLabel(weather.weather, language), language);
   const observedAt = observation?.timestamp
     ? formatTime(observation.timestamp, timeZone, language)
     : null;
 
-  let summary;
-  if (language === 'fr') {
-    summary = `À ${house} : ${temperature}${labels.temperature}, ${label}`;
-    if (weather.humidity !== undefined) summary += `, humidité ${weather.humidity} %`;
-    if (windSpeed !== null) summary += `, vent ${windSpeed} ${labels.speed}`;
-    summary += observedAt ? ` (relevé de ${observedAt}).` : ' (prévision).';
-  } else {
-    summary = `In ${house}: ${temperature}${labels.temperature}, ${label}`;
-    if (weather.humidity !== undefined) summary += `, humidity ${weather.humidity}%`;
-    if (windSpeed !== null) summary += `, wind ${windSpeed} ${labels.speed}`;
-    summary += observedAt ? ` (observed at ${observedAt}).` : ' (forecast).';
+  const say = sentences(language);
+  let summary = say.current({ house, temperature: `${temperature}${labels.temperature}`, sky });
+  if (weather.humidity !== undefined) {
+    summary += `, ${say.humidity(weather.humidity)}`;
   }
+  if (windSpeed !== null) {
+    summary += `, ${say.wind(`${windSpeed} ${labels.speed}`)}`;
+  }
+  summary += observedAt ? say.observed(observedAt) : say.forecasted;
 
   return {
     temperature: weather.temperature,
@@ -255,6 +308,7 @@ function buildCurrentOutputs({ weather, observation, house, timeZone, language, 
 
 export {
   SCENE_ACTIONS,
+  SENTENCES,
   MAX_DAY_OFFSET,
   readDayOffset,
   buildAlertsOutputs,

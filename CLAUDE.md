@@ -45,6 +45,7 @@ src/widgets.js          the three dashboard widgets and the icon image keys
 src/houses.js           the located houses of Gladys
 src/time.js             local dates and times of the house
 src/config.js           configuration, last language and unit system
+src/i18n.js             the four languages, typography helpers
 gladys-assistant-integration.json   manifest
 docs/{en,fr,de,es}.md   user documentation, re-hosted by the store
 .github/scripts/release.mjs         version, changelog, bump (tested in test/)
@@ -60,6 +61,9 @@ docs/{en,fr,de,es}.md   user documentation, re-hosted by the store
   never update the baseline to make a test pass without a documented migration.
 - **The container rootfs is read-only.** Write only under `/data` (nothing is
   written today: the last language and unit system go to the config).
+- **Four languages.** Every user-facing text (manifest, widget texts and
+  labels, scene sentences, `docs/*.md`, README) exists in English, French,
+  German and Spanish. `test/i18n.test.js` checks it.
 - **Versions belong to the Release workflow**: never edit `version` in
   `package.json`, the lockfile or the manifest, nor the `docker_image` tag.
 - **Changelog.** Never edit CHANGELOG.md by hand, it is generated at the
@@ -69,7 +73,7 @@ docs/{en,fr,de,es}.md   user documentation, re-hosted by the store
   below 1.0.0); `docs`, `chore`, `ci`, `test`, `style`, `refactor`, `build`
   release nothing. Scope `security` lands under "Security", a description
   starting with "remove" / "drop" under "Removed".
-- **Manifest.** Texts are objects `{ "en", "fr", ... }`; the catalog
+- **Manifest.** Texts are objects `{ "en", "fr", "de", "es" }`; the catalog
   `description` holds 10 to 100 characters per language, the whole file stays
   under the 100 KB of the store. A field older cores do not know needs a
   higher `gladys_version` minimum (see `src/constants.js` of the

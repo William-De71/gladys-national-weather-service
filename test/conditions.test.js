@@ -69,8 +69,10 @@ test('reads day and night from the icon', () => {
   assert.equal(isDayFromIcon(null), undefined);
 });
 
-test('labels the conditions in French and English', () => {
+test('labels the conditions in the four languages, English for any other', () => {
   assert.equal(conditionLabel('rain', 'fr'), 'Pluie');
-  assert.equal(conditionLabel('rain', 'de'), 'Rain');
+  assert.equal(conditionLabel('rain', 'de'), 'Regen');
+  assert.equal(conditionLabel('rain', 'es'), 'Lluvia');
+  assert.equal(conditionLabel('rain', 'it'), 'Rain');
   assert.equal(conditionLabel('nonsense', 'en'), 'Unknown');
 });

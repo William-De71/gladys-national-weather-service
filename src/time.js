@@ -8,7 +8,7 @@
 // local wall-clock time of the house, formatted here.
 // -----------------------------------------------------------------------------
 
-const LOCALES = { fr: 'fr-FR', en: 'en-US' };
+const LOCALES = { en: 'en-US', fr: 'fr-FR', de: 'de-DE', es: 'es-ES' };
 
 const localeOf = (language) => LOCALES[language] ?? LOCALES.en;
 
@@ -71,7 +71,7 @@ function addDays(date, days) {
  * @description Format a local time: "5:12 PM" in English, "17:12" in French.
  * @param {number|string|Date} instant - The instant.
  * @param {string|null} timeZone - The IANA time zone.
- * @param {string} language - 'fr' or 'en'.
+ * @param {string} language - 'en', 'fr', 'de' or 'es'.
  * @returns {string} The time.
  * @example
  * formatTime('2026-10-09T22:12:00Z', 'America/Chicago', 'en'); // -> '5:12 PM'
@@ -86,7 +86,7 @@ function formatTime(instant, timeZone, language) {
  * @description Format a short local day and time: "Sat 6:00 PM", "sam. 18:00".
  * @param {number|string|Date} instant - The instant.
  * @param {string|null} timeZone - The IANA time zone.
- * @param {string} language - 'fr' or 'en'.
+ * @param {string} language - 'en', 'fr', 'de' or 'es'.
  * @returns {string} The day and time.
  * @example
  * formatDayTime('2026-10-10T23:00:00Z', 'America/Chicago', 'en'); // -> 'Sat 6:00 PM'
@@ -102,7 +102,7 @@ function formatDayTime(instant, timeZone, language) {
 /**
  * @description The local weekday name of a YYYY-MM-DD date.
  * @param {string} date - The date.
- * @param {string} language - 'fr' or 'en'.
+ * @param {string} language - 'en', 'fr', 'de' or 'es'.
  * @returns {string} "Saturday", "samedi".
  * @example
  * weekdayName('2026-10-10', 'fr'); // -> 'samedi'

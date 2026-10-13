@@ -74,35 +74,63 @@ const CATEGORIES = [
 ];
 
 const CATEGORY_LABELS = {
-  tornado: { en: 'Tornado', fr: 'Tornade' },
-  hurricane: { en: 'Hurricane / tropical', fr: 'Ouragan / tropical' },
-  thunderstorm: { en: 'Severe thunderstorm', fr: 'Orage violent' },
-  flood: { en: 'Flood', fr: 'Inondation' },
-  winter: { en: 'Winter storm', fr: 'Tempête hivernale' },
-  cold: { en: 'Cold / freeze', fr: 'Froid / gel' },
-  heat: { en: 'Heat', fr: 'Chaleur' },
-  wind: { en: 'Wind', fr: 'Vent' },
-  fire: { en: 'Fire weather', fr: 'Risque d’incendie' },
-  fog: { en: 'Fog', fr: 'Brouillard' },
-  air: { en: 'Air quality', fr: 'Qualité de l’air' },
-  marine: { en: 'Marine / coast', fr: 'Mer / littoral' },
-  other: { en: 'Other', fr: 'Autre' },
+  tornado: { en: 'Tornado', fr: 'Tornade', de: 'Tornado', es: 'Tornado' },
+  hurricane: {
+    en: 'Hurricane / tropical',
+    fr: 'Ouragan / tropical',
+    de: 'Hurrikan / tropisch',
+    es: 'Huracán / tropical',
+  },
+  thunderstorm: {
+    en: 'Severe thunderstorm',
+    fr: 'Orage violent',
+    de: 'Schweres Gewitter',
+    es: 'Tormenta severa',
+  },
+  flood: { en: 'Flood', fr: 'Inondation', de: 'Hochwasser', es: 'Inundación' },
+  winter: {
+    en: 'Winter storm',
+    fr: 'Tempête hivernale',
+    de: 'Wintersturm',
+    es: 'Tormenta invernal',
+  },
+  cold: { en: 'Cold / freeze', fr: 'Froid / gel', de: 'Kälte / Frost', es: 'Frío / helada' },
+  heat: { en: 'Heat', fr: 'Chaleur', de: 'Hitze', es: 'Calor' },
+  wind: { en: 'Wind', fr: 'Vent', de: 'Wind', es: 'Viento' },
+  fire: {
+    en: 'Fire weather',
+    fr: 'Risque d’incendie',
+    de: 'Brandgefahr',
+    es: 'Riesgo de incendio',
+  },
+  fog: { en: 'Fog', fr: 'Brouillard', de: 'Nebel', es: 'Niebla' },
+  air: {
+    en: 'Air quality',
+    fr: 'Qualité de l’air',
+    de: 'Luftqualität',
+    es: 'Calidad del aire',
+  },
+  marine: { en: 'Marine / coast', fr: 'Mer / littoral', de: 'Meer / Küste', es: 'Mar / costa' },
+  other: { en: 'Other', fr: 'Autre', de: 'Sonstiges', es: 'Otro' },
 };
 
+// The NWS scale in the words of each language: in German those of the DWD
+// (Vorwarnung, Warnung), in Spanish those of the NWS's own Spanish products
+// (vigilancia, aviso, advertencia).
 const LEVEL_LABELS = {
-  warning: { en: 'Warning', fr: 'Alerte' },
-  watch: { en: 'Watch', fr: 'Veille' },
-  advisory: { en: 'Advisory', fr: 'Avis' },
-  statement: { en: 'Statement', fr: 'Bulletin' },
-  other: { en: 'Notice', fr: 'Information' },
+  warning: { en: 'Warning', fr: 'Alerte', de: 'Warnung', es: 'Aviso' },
+  watch: { en: 'Watch', fr: 'Veille', de: 'Vorwarnung', es: 'Vigilancia' },
+  advisory: { en: 'Advisory', fr: 'Avis', de: 'Hinweis', es: 'Advertencia' },
+  statement: { en: 'Statement', fr: 'Bulletin', de: 'Mitteilung', es: 'Declaración' },
+  other: { en: 'Notice', fr: 'Information', de: 'Information', es: 'Información' },
 };
 
 const SEVERITY_LABELS = {
-  extreme: { en: 'Extreme', fr: 'Extrême' },
-  severe: { en: 'Severe', fr: 'Sévère' },
-  moderate: { en: 'Moderate', fr: 'Modéré' },
-  minor: { en: 'Minor', fr: 'Mineur' },
-  unknown: { en: 'Unknown', fr: 'Inconnu' },
+  extreme: { en: 'Extreme', fr: 'Extrême', de: 'Extrem', es: 'Extrema' },
+  severe: { en: 'Severe', fr: 'Sévère', de: 'Schwer', es: 'Grave' },
+  moderate: { en: 'Moderate', fr: 'Modéré', de: 'Mäßig', es: 'Moderada' },
+  minor: { en: 'Minor', fr: 'Mineur', de: 'Gering', es: 'Menor' },
+  unknown: { en: 'Unknown', fr: 'Inconnu', de: 'Unbekannt', es: 'Desconocida' },
 };
 
 const localize = (labels, key, language) => {

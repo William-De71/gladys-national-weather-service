@@ -35,6 +35,7 @@
 
 import { CATEGORY_LABELS, LEVEL_LABELS, localize } from './alerts.js';
 import { formatDayTime } from './time.js';
+import { inSentence } from './i18n.js';
 
 const SCENE_TRIGGERS = {
   ALERT_ISSUED: 'alert_issued',
@@ -54,6 +55,31 @@ const truncate = (text) =>
     ? `${text.slice(0, MAX_EVENT_STRING - 1)}…`
     : (text ?? null);
 
+// The `summary` sentences, per language (English for any other). The NWS
+// event name stays in English: it is the official name of the product.
+const SUMMARIES = {
+  en: {
+    ended: ({ event, house }) => `The NWS ${event} for ${house} has ended.`,
+    issued: ({ event, house, until, headline }) =>
+      `NWS ${event} for ${house}${until ? ` until ${until}` : ''}${headline ? `: ${headline}` : '.'}`,
+  },
+  fr: {
+    ended: ({ event, house }) => `Fin de l'alerte NWS « ${event} » pour ${house}.`,
+    issued: ({ event, house, until, category, level }) =>
+      `NWS « ${event} » (${category}, niveau ${level}) pour ${house}${until ? ` jusqu'à ${until}` : ''}.`,
+  },
+  de: {
+    ended: ({ event, house }) => `Die NWS-Warnung „${event}“ für ${house} ist beendet.`,
+    issued: ({ event, house, until, category, level }) =>
+      `NWS „${event}“ (${category}, Stufe ${level}) für ${house}${until ? ` bis ${until}` : ''}.`,
+  },
+  es: {
+    ended: ({ event, house }) => `Fin de la alerta NWS «${event}» para ${house}.`,
+    issued: ({ event, house, until, category, level }) =>
+      `NWS «${event}» (${category}, nivel ${level}) para ${house}${until ? ` hasta ${until}` : ''}.`,
+  },
+};
+
 /**
  * @description Write the one-sentence summary of an issued or ended alert.
  * @param {object} alert - The readAlerts() alert.
@@ -63,19 +89,18 @@ const truncate = (text) =>
  * alertSummary(alert, { house: 'Home', ended: false, language: 'en', timeZone: 'America/Chicago' });
  */
 function alertSummary(alert, { house, ended, language, timeZone }) {
-  const until = alert.end ? formatDayTime(alert.end, timeZone, language) : null;
-  if (language === 'fr') {
-    if (ended) {
-      return `Fin de l'alerte NWS « ${alert.event} » pour ${house}.`;
-    }
-    const category = localize(CATEGORY_LABELS, alert.category, 'fr').toLowerCase();
-    const level = localize(LEVEL_LABELS, alert.level, 'fr').toLowerCase();
-    return `NWS « ${alert.event} » (${category}, niveau ${level}) pour ${house}${until ? ` jusqu'à ${until}` : ''}.`;
-  }
+  const say = SUMMARIES[language] ?? SUMMARIES.en;
   if (ended) {
-    return `The NWS ${alert.event} for ${house} has ended.`;
+    return say.ended({ event: alert.event, house });
   }
-  return `NWS ${alert.event} for ${house}${until ? ` until ${until}` : ''}${alert.headline ? `: ${alert.headline}` : '.'}`;
+  return say.issued({
+    event: alert.event,
+    house,
+    until: alert.end ? formatDayTime(alert.end, timeZone, language) : null,
+    headline: alert.headline,
+    category: inSentence(localize(CATEGORY_LABELS, alert.category, language), language),
+    level: inSentence(localize(LEVEL_LABELS, alert.level, language), language),
+  });
 }
 
 /**
@@ -373,6 +398,7 @@ function createAlertWatcher({
 
 export {
   SCENE_TRIGGERS,
+  SUMMARIES,
   MISSING_CHECKS_TO_END,
   MISSING_MS_TO_END,
   ENDED_MEMORY_MS,

@@ -4,7 +4,9 @@
   "name": "National Weather Service",
   "description": {
     "en": "Official US forecasts and alerts from the National Weather Service.",
-    "fr": "Prévisions et alertes officielles du National Weather Service (États-Unis)."
+    "fr": "Prévisions et alertes officielles du National Weather Service (États-Unis).",
+    "de": "Offizielle US-Vorhersagen und -Warnungen des National Weather Service.",
+    "es": "Previsiones y alertas oficiales de EE. UU. del National Weather Service."
   },
   "version": "1.0.0",
   "docker_image": "ghcr.io/william-de71/gladys-national-weather-service:1.0.0",
@@ -19,18 +21,24 @@
       "type": "section",
       "label": {
         "en": "Ready to use",
-        "fr": "Prêt à l'emploi"
+        "fr": "Prêt à l'emploi",
+        "de": "Sofort einsatzbereit",
+        "es": "Listo para usar"
       },
       "description": {
         "en": "Forecasts and alerts work with no configuration: the National Weather Service API is free and needs no key. It covers the United States and its territories only — a house elsewhere gets its weather from another provider.",
-        "fr": "Les prévisions et les alertes fonctionnent sans configuration : l'API du National Weather Service est gratuite et sans clé. Elle ne couvre que les États-Unis et leurs territoires — une maison située ailleurs reçoit sa météo d'un autre fournisseur."
+        "fr": "Les prévisions et les alertes fonctionnent sans configuration : l'API du National Weather Service est gratuite et sans clé. Elle ne couvre que les États-Unis et leurs territoires — une maison située ailleurs reçoit sa météo d'un autre fournisseur.",
+        "de": "Vorhersagen und Warnungen funktionieren ohne Konfiguration: Die API des National Weather Service ist kostenlos und braucht keinen Schlüssel. Sie deckt nur die Vereinigten Staaten und ihre Territorien ab — ein Zuhause anderswo bekommt sein Wetter von einem anderen Anbieter.",
+        "es": "Las previsiones y las alertas funcionan sin configuración: la API del National Weather Service es gratuita y no necesita clave. Solo cubre los Estados Unidos y sus territorios — una casa situada en otro lugar recibe su meteorología de otro proveedor."
       },
       "links": [
         {
           "url": "https://www.weather.gov/documentation/services-web-api",
           "label": {
             "en": "NWS API documentation",
-            "fr": "Documentation de l'API NWS"
+            "fr": "Documentation de l'API NWS",
+            "de": "Dokumentation der NWS-API",
+            "es": "Documentación de la API del NWS"
           }
         }
       ]
@@ -40,16 +48,22 @@
       "type": "string",
       "label": {
         "en": "Contact email (optional)",
-        "fr": "Email de contact (optionnel)"
+        "fr": "Email de contact (optionnel)",
+        "de": "Kontakt-E-Mail (optional)",
+        "es": "Correo de contacto (opcional)"
       },
       "description": {
         "en": "Added to the identification the NWS requires from every application, so it can reach you before blocking traffic it finds abusive. Never shared with anyone else.",
-        "fr": "Ajouté à l'identification que le NWS exige de chaque application, pour qu'il puisse vous prévenir avant de bloquer un trafic qu'il jugerait abusif. Jamais transmis à personne d'autre."
+        "fr": "Ajouté à l'identification que le NWS exige de chaque application, pour qu'il puisse vous prévenir avant de bloquer un trafic qu'il jugerait abusif. Jamais transmis à personne d'autre.",
+        "de": "Wird der Kennung hinzugefügt, die der NWS von jeder Anwendung verlangt, damit er dich erreichen kann, bevor er Datenverkehr sperrt, den er für missbräuchlich hält. Wird an niemanden sonst weitergegeben.",
+        "es": "Se añade a la identificación que el NWS exige a cada aplicación, para que pueda contactarle antes de bloquear un tráfico que considere abusivo. Nunca se comparte con nadie más."
       },
       "required": false,
       "placeholder": {
         "en": "me@example.com",
-        "fr": "moi@exemple.fr"
+        "fr": "moi@exemple.fr",
+        "de": "ich@beispiel.de",
+        "es": "yo@ejemplo.es"
       }
     },
     {
@@ -57,11 +71,15 @@
       "type": "number",
       "label": {
         "en": "Cache duration (s)",
-        "fr": "Durée du cache (s)"
+        "fr": "Durée du cache (s)",
+        "de": "Cache-Dauer (s)",
+        "es": "Duración de la caché (s)"
       },
       "description": {
         "en": "In seconds, between 0 and 3600. How long a forecast is reused before calling the NWS again. The NWS refreshes its forecasts about once an hour: the default of 600 (10 min) costs no freshness. Set to 0 to always call the API. Alerts are not affected: they are checked on their own schedule.",
-        "fr": "En secondes, entre 0 et 3600. Durée pendant laquelle une prévision est réutilisée avant de rappeler le NWS. Le NWS met à jour ses prévisions environ une fois par heure : la valeur par défaut de 600 (10 min) ne fait rien perdre en fraîcheur. Mettre 0 pour toujours appeler l'API. Les alertes ne sont pas concernées : elles sont vérifiées selon leur propre rythme."
+        "fr": "En secondes, entre 0 et 3600. Durée pendant laquelle une prévision est réutilisée avant de rappeler le NWS. Le NWS met à jour ses prévisions environ une fois par heure : la valeur par défaut de 600 (10 min) ne fait rien perdre en fraîcheur. Mettre 0 pour toujours appeler l'API. Les alertes ne sont pas concernées : elles sont vérifiées selon leur propre rythme.",
+        "de": "In Sekunden, zwischen 0 und 3600. Wie lange eine Vorhersage wiederverwendet wird, bevor der NWS erneut abgefragt wird. Der NWS aktualisiert seine Vorhersagen etwa einmal pro Stunde: Der Standardwert von 600 (10 min) kostet keine Aktualität. 0 ruft die API jedes Mal ab. Warnungen sind nicht betroffen: Sie werden in ihrem eigenen Rhythmus geprüft.",
+        "es": "En segundos, entre 0 y 3600. Tiempo durante el cual se reutiliza una previsión antes de volver a consultar el NWS. El NWS actualiza sus previsiones aproximadamente una vez por hora: el valor por defecto de 600 (10 min) no resta actualidad. Ponga 0 para consultar siempre la API. Las alertas no se ven afectadas: se comprueban a su propio ritmo."
       },
       "required": false,
       "default": 600,
@@ -73,11 +91,15 @@
       "type": "number",
       "label": {
         "en": "Alert check interval (s)",
-        "fr": "Intervalle de vérification des alertes (s)"
+        "fr": "Intervalle de vérification des alertes (s)",
+        "de": "Prüfintervall der Warnungen (s)",
+        "es": "Intervalo de comprobación de alertas (s)"
       },
       "description": {
         "en": "In seconds, between 30 and 900. How often the official alerts of your houses are checked, for the scene triggers and the alerts widget. A Tornado Warning lasts about 30 minutes: the default of 60 s fires your scenes within a minute of its issuance.",
-        "fr": "En secondes, entre 30 et 900. Fréquence de vérification des alertes officielles de vos maisons, pour les déclencheurs de scène et le widget des alertes. Une alerte tornade dure environ 30 minutes : la valeur par défaut de 60 s déclenche vos scènes moins d'une minute après son émission."
+        "fr": "En secondes, entre 30 et 900. Fréquence de vérification des alertes officielles de vos maisons, pour les déclencheurs de scène et le widget des alertes. Une alerte tornade dure environ 30 minutes : la valeur par défaut de 60 s déclenche vos scènes moins d'une minute après son émission.",
+        "de": "In Sekunden, zwischen 30 und 900. Wie oft die offiziellen Warnungen deiner Zuhause geprüft werden, für die Szenen-Auslöser und das Warnungs-Widget. Eine Tornado Warning dauert etwa 30 Minuten: Der Standardwert von 60 s löst deine Szenen weniger als eine Minute nach ihrer Ausgabe aus.",
+        "es": "En segundos, entre 30 y 900. Frecuencia de comprobación de las alertas oficiales de sus casas, para los activadores de escena y el widget de alertas. Una Tornado Warning dura unos 30 minutos: el valor por defecto de 60 s activa sus escenas menos de un minuto después de su emisión."
       },
       "required": false,
       "default": 60,
@@ -90,11 +112,15 @@
       "key": "alert_issued",
       "label": {
         "en": "NWS alert issued",
-        "fr": "Alerte NWS émise"
+        "fr": "Alerte NWS émise",
+        "de": "NWS-Warnung ausgegeben",
+        "es": "Alerta NWS emitida"
       },
       "description": {
         "en": "A new watch, warning or advisory covers the house. Its updates do not fire again. Checked every minute by default.",
-        "fr": "Une nouvelle veille, alerte ou un avis du NWS couvre la maison. Ses mises à jour ne redéclenchent pas. Vérifié chaque minute par défaut."
+        "fr": "Une nouvelle veille, alerte ou un avis du NWS couvre la maison. Ses mises à jour ne redéclenchent pas. Vérifié chaque minute par défaut.",
+        "de": "Eine neue Vorwarnung, Warnung oder ein Hinweis des NWS betrifft das Zuhause. Seine Aktualisierungen lösen nicht erneut aus. Standardmäßig jede Minute geprüft.",
+        "es": "Una nueva vigilancia, aviso o advertencia del NWS cubre la casa. Sus actualizaciones no vuelven a activarla. Comprobado cada minuto por defecto."
       },
       "fields": [
         {
@@ -102,11 +128,15 @@
           "type": "string",
           "label": {
             "en": "House",
-            "fr": "Maison"
+            "fr": "Maison",
+            "de": "Zuhause",
+            "es": "Casa"
           },
           "description": {
             "en": "Name of the house, exactly as shown in Gladys (case-sensitive). Leave empty for every house.",
-            "fr": "Nom de la maison, exactement comme dans Gladys (majuscules comprises). Laissez vide pour toutes les maisons."
+            "fr": "Nom de la maison, exactement comme dans Gladys (majuscules comprises). Laissez vide pour toutes les maisons.",
+            "de": "Name des Zuhauses, genau wie in Gladys angezeigt (Groß-/Kleinschreibung beachten). Leer lassen für alle Zuhause.",
+            "es": "Nombre de la casa, exactamente como aparece en Gladys (distingue mayúsculas). Déjelo vacío para todas las casas."
           },
           "required": false
         },
@@ -115,11 +145,15 @@
           "type": "multi_select",
           "label": {
             "en": "Kind of alert",
-            "fr": "Type d'alerte"
+            "fr": "Type d'alerte",
+            "de": "Art der Warnung",
+            "es": "Tipo de alerta"
           },
           "description": {
             "en": "Leave empty for every kind.",
-            "fr": "Laissez vide pour tous les types."
+            "fr": "Laissez vide pour tous les types.",
+            "de": "Leer lassen für alle Arten.",
+            "es": "Déjelo vacío para todos los tipos."
           },
           "required": false,
           "options": [
@@ -127,91 +161,117 @@
               "value": "tornado",
               "label": {
                 "en": "Tornado",
-                "fr": "Tornade"
+                "fr": "Tornade",
+                "de": "Tornado",
+                "es": "Tornado"
               }
             },
             {
               "value": "hurricane",
               "label": {
                 "en": "Hurricane / tropical storm",
-                "fr": "Ouragan / tempête tropicale"
+                "fr": "Ouragan / tempête tropicale",
+                "de": "Hurrikan / Tropensturm",
+                "es": "Huracán / tormenta tropical"
               }
             },
             {
               "value": "thunderstorm",
               "label": {
                 "en": "Severe thunderstorm",
-                "fr": "Orage violent"
+                "fr": "Orage violent",
+                "de": "Schweres Gewitter",
+                "es": "Tormenta severa"
               }
             },
             {
               "value": "flood",
               "label": {
                 "en": "Flood",
-                "fr": "Inondation"
+                "fr": "Inondation",
+                "de": "Hochwasser",
+                "es": "Inundación"
               }
             },
             {
               "value": "winter",
               "label": {
                 "en": "Winter storm, snow, ice",
-                "fr": "Tempête hivernale, neige, verglas"
+                "fr": "Tempête hivernale, neige, verglas",
+                "de": "Wintersturm, Schnee, Eis",
+                "es": "Tormenta invernal, nieve, hielo"
               }
             },
             {
               "value": "cold",
               "label": {
                 "en": "Cold, freeze, wind chill",
-                "fr": "Froid, gel, refroidissement éolien"
+                "fr": "Froid, gel, refroidissement éolien",
+                "de": "Kälte, Frost, Windkühle",
+                "es": "Frío, helada, sensación térmica"
               }
             },
             {
               "value": "heat",
               "label": {
                 "en": "Heat",
-                "fr": "Chaleur"
+                "fr": "Chaleur",
+                "de": "Hitze",
+                "es": "Calor"
               }
             },
             {
               "value": "wind",
               "label": {
                 "en": "Wind",
-                "fr": "Vent"
+                "fr": "Vent",
+                "de": "Wind",
+                "es": "Viento"
               }
             },
             {
               "value": "fire",
               "label": {
                 "en": "Fire weather (red flag)",
-                "fr": "Risque d'incendie (red flag)"
+                "fr": "Risque d'incendie (red flag)",
+                "de": "Brandgefahr (red flag)",
+                "es": "Riesgo de incendio (red flag)"
               }
             },
             {
               "value": "fog",
               "label": {
                 "en": "Fog",
-                "fr": "Brouillard"
+                "fr": "Brouillard",
+                "de": "Nebel",
+                "es": "Niebla"
               }
             },
             {
               "value": "air",
               "label": {
                 "en": "Air quality, smoke, dust",
-                "fr": "Qualité de l'air, fumée, poussière"
+                "fr": "Qualité de l'air, fumée, poussière",
+                "de": "Luftqualität, Rauch, Staub",
+                "es": "Calidad del aire, humo, polvo"
               }
             },
             {
               "value": "marine",
               "label": {
                 "en": "Marine, surf, rip currents",
-                "fr": "Mer, houle, courants"
+                "fr": "Mer, houle, courants",
+                "de": "Meer, Brandung, Rippströmungen",
+                "es": "Mar, oleaje, corrientes de resaca"
               }
             },
             {
               "value": "other",
               "label": {
                 "en": "Other",
-                "fr": "Autre"
+                "fr": "Autre",
+                "de": "Sonstiges",
+                "es": "Otro"
               }
             }
           ]
@@ -221,11 +281,15 @@
           "type": "multi_select",
           "label": {
             "en": "Level",
-            "fr": "Niveau"
+            "fr": "Niveau",
+            "de": "Stufe",
+            "es": "Nivel"
           },
           "description": {
             "en": "Leave empty for every level. A Watch means conditions are favorable; a Warning means the hazard is happening or imminent.",
-            "fr": "Laissez vide pour tous les niveaux. Une « Watch » signifie que les conditions sont réunies ; un « Warning » que le phénomène est en cours ou imminent."
+            "fr": "Laissez vide pour tous les niveaux. Une « Watch » signifie que les conditions sont réunies ; un « Warning » que le phénomène est en cours ou imminent.",
+            "de": "Leer lassen für alle Stufen. Eine „Watch“ bedeutet, dass die Bedingungen günstig sind; eine „Warning“, dass das Ereignis eintritt oder unmittelbar bevorsteht.",
+            "es": "Déjelo vacío para todos los niveles. Una «Watch» significa que las condiciones son favorables; un «Warning», que el fenómeno está ocurriendo o es inminente."
           },
           "required": false,
           "options": [
@@ -233,35 +297,45 @@
               "value": "warning",
               "label": {
                 "en": "Warning (take action)",
-                "fr": "Warning – alerte (agir)"
+                "fr": "Warning – alerte (agir)",
+                "de": "Warning – Warnung (handeln)",
+                "es": "Warning – aviso (actuar)"
               }
             },
             {
               "value": "watch",
               "label": {
                 "en": "Watch (be prepared)",
-                "fr": "Watch – veille (se préparer)"
+                "fr": "Watch – veille (se préparer)",
+                "de": "Watch – Vorwarnung (vorbereiten)",
+                "es": "Watch – vigilancia (prepararse)"
               }
             },
             {
               "value": "advisory",
               "label": {
                 "en": "Advisory",
-                "fr": "Advisory – avis"
+                "fr": "Advisory – avis",
+                "de": "Advisory – Hinweis",
+                "es": "Advisory – advertencia"
               }
             },
             {
               "value": "statement",
               "label": {
                 "en": "Statement",
-                "fr": "Statement – bulletin"
+                "fr": "Statement – bulletin",
+                "de": "Statement – Mitteilung",
+                "es": "Statement – declaración"
               }
             },
             {
               "value": "other",
               "label": {
                 "en": "Other notice",
-                "fr": "Autre information"
+                "fr": "Autre information",
+                "de": "Sonstige Information",
+                "es": "Otra información"
               }
             }
           ]
@@ -271,11 +345,15 @@
           "type": "multi_select",
           "label": {
             "en": "Severity",
-            "fr": "Sévérité"
+            "fr": "Sévérité",
+            "de": "Schweregrad",
+            "es": "Gravedad"
           },
           "description": {
             "en": "Official CAP severity. Leave empty for any.",
-            "fr": "Sévérité officielle (CAP). Laissez vide pour toutes."
+            "fr": "Sévérité officielle (CAP). Laissez vide pour toutes.",
+            "de": "Offizieller CAP-Schweregrad. Leer lassen für alle.",
+            "es": "Gravedad oficial (CAP). Déjelo vacío para todas."
           },
           "required": false,
           "options": [
@@ -283,35 +361,45 @@
               "value": "extreme",
               "label": {
                 "en": "Extreme",
-                "fr": "Extrême"
+                "fr": "Extrême",
+                "de": "Extrem",
+                "es": "Extrema"
               }
             },
             {
               "value": "severe",
               "label": {
                 "en": "Severe",
-                "fr": "Sévère"
+                "fr": "Sévère",
+                "de": "Schwer",
+                "es": "Grave"
               }
             },
             {
               "value": "moderate",
               "label": {
                 "en": "Moderate",
-                "fr": "Modéré"
+                "fr": "Modéré",
+                "de": "Mäßig",
+                "es": "Moderada"
               }
             },
             {
               "value": "minor",
               "label": {
                 "en": "Minor",
-                "fr": "Mineur"
+                "fr": "Mineur",
+                "de": "Gering",
+                "es": "Menor"
               }
             },
             {
               "value": "unknown",
               "label": {
                 "en": "Unknown",
-                "fr": "Inconnu"
+                "fr": "Inconnu",
+                "de": "Unbekannt",
+                "es": "Desconocida"
               }
             }
           ]
@@ -323,7 +411,9 @@
           "type": "string",
           "label": {
             "en": "House",
-            "fr": "Maison"
+            "fr": "Maison",
+            "de": "Zuhause",
+            "es": "Casa"
           }
         },
         {
@@ -331,7 +421,9 @@
           "type": "string",
           "label": {
             "en": "Event (e.g. Tornado Warning)",
-            "fr": "Événement (ex. Tornado Warning)"
+            "fr": "Événement (ex. Tornado Warning)",
+            "de": "Ereignis (z. B. Tornado Warning)",
+            "es": "Evento (p. ej. Tornado Warning)"
           }
         },
         {
@@ -339,7 +431,9 @@
           "type": "string",
           "label": {
             "en": "Kind (key)",
-            "fr": "Type (clé)"
+            "fr": "Type (clé)",
+            "de": "Art (Schlüssel)",
+            "es": "Tipo (clave)"
           }
         },
         {
@@ -347,7 +441,9 @@
           "type": "string",
           "label": {
             "en": "Kind",
-            "fr": "Type"
+            "fr": "Type",
+            "de": "Art",
+            "es": "Tipo"
           }
         },
         {
@@ -355,7 +451,9 @@
           "type": "string",
           "label": {
             "en": "Level (warning, watch, advisory, statement, other)",
-            "fr": "Niveau (warning, watch, advisory, statement, other)"
+            "fr": "Niveau (warning, watch, advisory, statement, other)",
+            "de": "Stufe (warning, watch, advisory, statement, other)",
+            "es": "Nivel (warning, watch, advisory, statement, other)"
           }
         },
         {
@@ -363,7 +461,9 @@
           "type": "string",
           "label": {
             "en": "Level label",
-            "fr": "Libellé du niveau"
+            "fr": "Libellé du niveau",
+            "de": "Bezeichnung der Stufe",
+            "es": "Etiqueta del nivel"
           }
         },
         {
@@ -371,7 +471,9 @@
           "type": "string",
           "label": {
             "en": "Severity (extreme, severe, moderate, minor, unknown)",
-            "fr": "Sévérité (extreme, severe, moderate, minor, unknown)"
+            "fr": "Sévérité (extreme, severe, moderate, minor, unknown)",
+            "de": "Schweregrad (extreme, severe, moderate, minor, unknown)",
+            "es": "Gravedad (extreme, severe, moderate, minor, unknown)"
           }
         },
         {
@@ -379,7 +481,9 @@
           "type": "string",
           "label": {
             "en": "Urgency",
-            "fr": "Urgence"
+            "fr": "Urgence",
+            "de": "Dringlichkeit",
+            "es": "Urgencia"
           }
         },
         {
@@ -387,7 +491,9 @@
           "type": "string",
           "label": {
             "en": "Certainty",
-            "fr": "Certitude"
+            "fr": "Certitude",
+            "de": "Gewissheit",
+            "es": "Certeza"
           }
         },
         {
@@ -395,7 +501,9 @@
           "type": "string",
           "label": {
             "en": "Headline",
-            "fr": "Titre"
+            "fr": "Titre",
+            "de": "Überschrift",
+            "es": "Titular"
           }
         },
         {
@@ -403,7 +511,9 @@
           "type": "string",
           "label": {
             "en": "Area",
-            "fr": "Zone"
+            "fr": "Zone",
+            "de": "Gebiet",
+            "es": "Zona"
           }
         },
         {
@@ -411,7 +521,9 @@
           "type": "string",
           "label": {
             "en": "Start (local time)",
-            "fr": "Début (heure locale)"
+            "fr": "Début (heure locale)",
+            "de": "Beginn (Ortszeit)",
+            "es": "Inicio (hora local)"
           }
         },
         {
@@ -419,7 +531,9 @@
           "type": "string",
           "label": {
             "en": "End (local time)",
-            "fr": "Fin (heure locale)"
+            "fr": "Fin (heure locale)",
+            "de": "Ende (Ortszeit)",
+            "es": "Fin (hora local)"
           }
         },
         {
@@ -427,7 +541,9 @@
           "type": "string",
           "label": {
             "en": "Instructions",
-            "fr": "Consignes"
+            "fr": "Consignes",
+            "de": "Verhaltenshinweise",
+            "es": "Instrucciones"
           }
         },
         {
@@ -435,7 +551,9 @@
           "type": "string",
           "label": {
             "en": "Description",
-            "fr": "Description"
+            "fr": "Description",
+            "de": "Beschreibung",
+            "es": "Descripción"
           }
         },
         {
@@ -443,11 +561,15 @@
           "type": "string",
           "label": {
             "en": "Summary",
-            "fr": "Résumé"
+            "fr": "Résumé",
+            "de": "Zusammenfassung",
+            "es": "Resumen"
           },
           "description": {
             "en": "A sentence ready to put in a message.",
-            "fr": "Une phrase prête à mettre dans un message."
+            "fr": "Une phrase prête à mettre dans un message.",
+            "de": "Ein Satz, fertig für eine Nachricht.",
+            "es": "Una frase lista para poner en un mensaje."
           }
         }
       ]
@@ -456,11 +578,15 @@
       "key": "alert_ended",
       "label": {
         "en": "NWS alert ended",
-        "fr": "Fin d'une alerte NWS"
+        "fr": "Fin d'une alerte NWS",
+        "de": "NWS-Warnung beendet",
+        "es": "Fin de una alerta NWS"
       },
       "description": {
         "en": "A watch, warning or advisory covering the house expired or was cancelled.",
-        "fr": "Une veille, alerte ou un avis du NWS couvrant la maison a expiré ou a été annulé."
+        "fr": "Une veille, alerte ou un avis du NWS couvrant la maison a expiré ou a été annulé.",
+        "de": "Eine Vorwarnung, Warnung oder ein Hinweis des NWS für das Zuhause ist abgelaufen oder wurde aufgehoben.",
+        "es": "Una vigilancia, aviso o advertencia del NWS que cubría la casa ha expirado o se ha cancelado."
       },
       "fields": [
         {
@@ -468,11 +594,15 @@
           "type": "string",
           "label": {
             "en": "House",
-            "fr": "Maison"
+            "fr": "Maison",
+            "de": "Zuhause",
+            "es": "Casa"
           },
           "description": {
             "en": "Name of the house, exactly as shown in Gladys (case-sensitive). Leave empty for every house.",
-            "fr": "Nom de la maison, exactement comme dans Gladys (majuscules comprises). Laissez vide pour toutes les maisons."
+            "fr": "Nom de la maison, exactement comme dans Gladys (majuscules comprises). Laissez vide pour toutes les maisons.",
+            "de": "Name des Zuhauses, genau wie in Gladys angezeigt (Groß-/Kleinschreibung beachten). Leer lassen für alle Zuhause.",
+            "es": "Nombre de la casa, exactamente como aparece en Gladys (distingue mayúsculas). Déjelo vacío para todas las casas."
           },
           "required": false
         },
@@ -481,11 +611,15 @@
           "type": "multi_select",
           "label": {
             "en": "Kind of alert",
-            "fr": "Type d'alerte"
+            "fr": "Type d'alerte",
+            "de": "Art der Warnung",
+            "es": "Tipo de alerta"
           },
           "description": {
             "en": "Leave empty for every kind.",
-            "fr": "Laissez vide pour tous les types."
+            "fr": "Laissez vide pour tous les types.",
+            "de": "Leer lassen für alle Arten.",
+            "es": "Déjelo vacío para todos los tipos."
           },
           "required": false,
           "options": [
@@ -493,91 +627,117 @@
               "value": "tornado",
               "label": {
                 "en": "Tornado",
-                "fr": "Tornade"
+                "fr": "Tornade",
+                "de": "Tornado",
+                "es": "Tornado"
               }
             },
             {
               "value": "hurricane",
               "label": {
                 "en": "Hurricane / tropical storm",
-                "fr": "Ouragan / tempête tropicale"
+                "fr": "Ouragan / tempête tropicale",
+                "de": "Hurrikan / Tropensturm",
+                "es": "Huracán / tormenta tropical"
               }
             },
             {
               "value": "thunderstorm",
               "label": {
                 "en": "Severe thunderstorm",
-                "fr": "Orage violent"
+                "fr": "Orage violent",
+                "de": "Schweres Gewitter",
+                "es": "Tormenta severa"
               }
             },
             {
               "value": "flood",
               "label": {
                 "en": "Flood",
-                "fr": "Inondation"
+                "fr": "Inondation",
+                "de": "Hochwasser",
+                "es": "Inundación"
               }
             },
             {
               "value": "winter",
               "label": {
                 "en": "Winter storm, snow, ice",
-                "fr": "Tempête hivernale, neige, verglas"
+                "fr": "Tempête hivernale, neige, verglas",
+                "de": "Wintersturm, Schnee, Eis",
+                "es": "Tormenta invernal, nieve, hielo"
               }
             },
             {
               "value": "cold",
               "label": {
                 "en": "Cold, freeze, wind chill",
-                "fr": "Froid, gel, refroidissement éolien"
+                "fr": "Froid, gel, refroidissement éolien",
+                "de": "Kälte, Frost, Windkühle",
+                "es": "Frío, helada, sensación térmica"
               }
             },
             {
               "value": "heat",
               "label": {
                 "en": "Heat",
-                "fr": "Chaleur"
+                "fr": "Chaleur",
+                "de": "Hitze",
+                "es": "Calor"
               }
             },
             {
               "value": "wind",
               "label": {
                 "en": "Wind",
-                "fr": "Vent"
+                "fr": "Vent",
+                "de": "Wind",
+                "es": "Viento"
               }
             },
             {
               "value": "fire",
               "label": {
                 "en": "Fire weather (red flag)",
-                "fr": "Risque d'incendie (red flag)"
+                "fr": "Risque d'incendie (red flag)",
+                "de": "Brandgefahr (red flag)",
+                "es": "Riesgo de incendio (red flag)"
               }
             },
             {
               "value": "fog",
               "label": {
                 "en": "Fog",
-                "fr": "Brouillard"
+                "fr": "Brouillard",
+                "de": "Nebel",
+                "es": "Niebla"
               }
             },
             {
               "value": "air",
               "label": {
                 "en": "Air quality, smoke, dust",
-                "fr": "Qualité de l'air, fumée, poussière"
+                "fr": "Qualité de l'air, fumée, poussière",
+                "de": "Luftqualität, Rauch, Staub",
+                "es": "Calidad del aire, humo, polvo"
               }
             },
             {
               "value": "marine",
               "label": {
                 "en": "Marine, surf, rip currents",
-                "fr": "Mer, houle, courants"
+                "fr": "Mer, houle, courants",
+                "de": "Meer, Brandung, Rippströmungen",
+                "es": "Mar, oleaje, corrientes de resaca"
               }
             },
             {
               "value": "other",
               "label": {
                 "en": "Other",
-                "fr": "Autre"
+                "fr": "Autre",
+                "de": "Sonstiges",
+                "es": "Otro"
               }
             }
           ]
@@ -587,11 +747,15 @@
           "type": "multi_select",
           "label": {
             "en": "Level",
-            "fr": "Niveau"
+            "fr": "Niveau",
+            "de": "Stufe",
+            "es": "Nivel"
           },
           "description": {
             "en": "Leave empty for every level. A Watch means conditions are favorable; a Warning means the hazard is happening or imminent.",
-            "fr": "Laissez vide pour tous les niveaux. Une « Watch » signifie que les conditions sont réunies ; un « Warning » que le phénomène est en cours ou imminent."
+            "fr": "Laissez vide pour tous les niveaux. Une « Watch » signifie que les conditions sont réunies ; un « Warning » que le phénomène est en cours ou imminent.",
+            "de": "Leer lassen für alle Stufen. Eine „Watch“ bedeutet, dass die Bedingungen günstig sind; eine „Warning“, dass das Ereignis eintritt oder unmittelbar bevorsteht.",
+            "es": "Déjelo vacío para todos los niveles. Una «Watch» significa que las condiciones son favorables; un «Warning», que el fenómeno está ocurriendo o es inminente."
           },
           "required": false,
           "options": [
@@ -599,35 +763,45 @@
               "value": "warning",
               "label": {
                 "en": "Warning (take action)",
-                "fr": "Warning – alerte (agir)"
+                "fr": "Warning – alerte (agir)",
+                "de": "Warning – Warnung (handeln)",
+                "es": "Warning – aviso (actuar)"
               }
             },
             {
               "value": "watch",
               "label": {
                 "en": "Watch (be prepared)",
-                "fr": "Watch – veille (se préparer)"
+                "fr": "Watch – veille (se préparer)",
+                "de": "Watch – Vorwarnung (vorbereiten)",
+                "es": "Watch – vigilancia (prepararse)"
               }
             },
             {
               "value": "advisory",
               "label": {
                 "en": "Advisory",
-                "fr": "Advisory – avis"
+                "fr": "Advisory – avis",
+                "de": "Advisory – Hinweis",
+                "es": "Advisory – advertencia"
               }
             },
             {
               "value": "statement",
               "label": {
                 "en": "Statement",
-                "fr": "Statement – bulletin"
+                "fr": "Statement – bulletin",
+                "de": "Statement – Mitteilung",
+                "es": "Statement – declaración"
               }
             },
             {
               "value": "other",
               "label": {
                 "en": "Other notice",
-                "fr": "Autre information"
+                "fr": "Autre information",
+                "de": "Sonstige Information",
+                "es": "Otra información"
               }
             }
           ]
@@ -639,7 +813,9 @@
           "type": "string",
           "label": {
             "en": "House",
-            "fr": "Maison"
+            "fr": "Maison",
+            "de": "Zuhause",
+            "es": "Casa"
           }
         },
         {
@@ -647,7 +823,9 @@
           "type": "string",
           "label": {
             "en": "Event",
-            "fr": "Événement"
+            "fr": "Événement",
+            "de": "Ereignis",
+            "es": "Evento"
           }
         },
         {
@@ -655,7 +833,9 @@
           "type": "string",
           "label": {
             "en": "Kind (key)",
-            "fr": "Type (clé)"
+            "fr": "Type (clé)",
+            "de": "Art (Schlüssel)",
+            "es": "Tipo (clave)"
           }
         },
         {
@@ -663,7 +843,9 @@
           "type": "string",
           "label": {
             "en": "Kind",
-            "fr": "Type"
+            "fr": "Type",
+            "de": "Art",
+            "es": "Tipo"
           }
         },
         {
@@ -671,7 +853,9 @@
           "type": "string",
           "label": {
             "en": "Level",
-            "fr": "Niveau"
+            "fr": "Niveau",
+            "de": "Stufe",
+            "es": "Nivel"
           }
         },
         {
@@ -679,7 +863,9 @@
           "type": "string",
           "label": {
             "en": "Level label",
-            "fr": "Libellé du niveau"
+            "fr": "Libellé du niveau",
+            "de": "Bezeichnung der Stufe",
+            "es": "Etiqueta del nivel"
           }
         },
         {
@@ -687,7 +873,9 @@
           "type": "string",
           "label": {
             "en": "Severity",
-            "fr": "Sévérité"
+            "fr": "Sévérité",
+            "de": "Schweregrad",
+            "es": "Gravedad"
           }
         },
         {
@@ -695,7 +883,9 @@
           "type": "string",
           "label": {
             "en": "Area",
-            "fr": "Zone"
+            "fr": "Zone",
+            "de": "Gebiet",
+            "es": "Zona"
           }
         },
         {
@@ -703,11 +893,15 @@
           "type": "string",
           "label": {
             "en": "Summary",
-            "fr": "Résumé"
+            "fr": "Résumé",
+            "de": "Zusammenfassung",
+            "es": "Resumen"
           },
           "description": {
             "en": "A sentence ready to put in a message.",
-            "fr": "Une phrase prête à mettre dans un message."
+            "fr": "Une phrase prête à mettre dans un message.",
+            "de": "Ein Satz, fertig für eine Nachricht.",
+            "es": "Una frase lista para poner en un mensaje."
           }
         }
       ]
@@ -718,11 +912,15 @@
       "key": "get_alerts",
       "label": {
         "en": "Get the NWS alerts",
-        "fr": "Obtenir les alertes NWS"
+        "fr": "Obtenir les alertes NWS",
+        "de": "NWS-Warnungen abrufen",
+        "es": "Obtener las alertas NWS"
       },
       "description": {
         "en": "The watches, warnings and advisories in force at the house, the most serious first.",
-        "fr": "Les veilles, alertes et avis en cours pour la maison, le plus grave en premier."
+        "fr": "Les veilles, alertes et avis en cours pour la maison, le plus grave en premier.",
+        "de": "Die für das Zuhause geltenden Vorwarnungen, Warnungen und Hinweise, die schwerste zuerst.",
+        "es": "Las vigilancias, avisos y advertencias en vigor para la casa, la más grave primero."
       },
       "timeout_seconds": 30,
       "fields": [
@@ -731,11 +929,15 @@
           "type": "string",
           "label": {
             "en": "House",
-            "fr": "Maison"
+            "fr": "Maison",
+            "de": "Zuhause",
+            "es": "Casa"
           },
           "description": {
             "en": "Name of the house, exactly as shown in Gladys (case-sensitive). Leave empty for the first house with a location.",
-            "fr": "Nom de la maison, exactement comme dans Gladys (majuscules comprises). Laissez vide pour la première maison localisée."
+            "fr": "Nom de la maison, exactement comme dans Gladys (majuscules comprises). Laissez vide pour la première maison localisée.",
+            "de": "Name des Zuhauses, genau wie in Gladys angezeigt (Groß-/Kleinschreibung beachten). Leer lassen für das erste Zuhause mit Standort.",
+            "es": "Nombre de la casa, exactamente como aparece en Gladys (distingue mayúsculas). Déjelo vacío para la primera casa con ubicación."
           },
           "required": false
         }
@@ -746,7 +948,9 @@
           "type": "number",
           "label": {
             "en": "Number of alerts",
-            "fr": "Nombre d'alertes"
+            "fr": "Nombre d'alertes",
+            "de": "Anzahl der Warnungen",
+            "es": "Número de alertas"
           }
         },
         {
@@ -754,7 +958,9 @@
           "type": "boolean",
           "label": {
             "en": "Alert in force",
-            "fr": "Alerte en cours"
+            "fr": "Alerte en cours",
+            "de": "Warnung aktiv",
+            "es": "Alerta en vigor"
           }
         },
         {
@@ -762,7 +968,9 @@
           "type": "boolean",
           "label": {
             "en": "Warning in force",
-            "fr": "Warning en cours"
+            "fr": "Warning en cours",
+            "de": "Warning aktiv",
+            "es": "Warning en vigor"
           }
         },
         {
@@ -770,7 +978,9 @@
           "type": "number",
           "label": {
             "en": "Warnings",
-            "fr": "Warnings"
+            "fr": "Warnings",
+            "de": "Warnings",
+            "es": "Warnings"
           }
         },
         {
@@ -778,7 +988,9 @@
           "type": "number",
           "label": {
             "en": "Watches",
-            "fr": "Watches"
+            "fr": "Watches",
+            "de": "Watches",
+            "es": "Watches"
           }
         },
         {
@@ -786,7 +998,9 @@
           "type": "number",
           "label": {
             "en": "Advisories",
-            "fr": "Advisories"
+            "fr": "Advisories",
+            "de": "Advisories",
+            "es": "Advisories"
           }
         },
         {
@@ -794,7 +1008,9 @@
           "type": "string",
           "label": {
             "en": "Events",
-            "fr": "Événements"
+            "fr": "Événements",
+            "de": "Ereignisse",
+            "es": "Eventos"
           }
         },
         {
@@ -802,7 +1018,9 @@
           "type": "string",
           "label": {
             "en": "Most serious: event",
-            "fr": "Plus grave : événement"
+            "fr": "Plus grave : événement",
+            "de": "Schwerste: Ereignis",
+            "es": "Más grave: evento"
           }
         },
         {
@@ -810,7 +1028,9 @@
           "type": "string",
           "label": {
             "en": "Most serious: kind (key)",
-            "fr": "Plus grave : type (clé)"
+            "fr": "Plus grave : type (clé)",
+            "de": "Schwerste: Art (Schlüssel)",
+            "es": "Más grave: tipo (clave)"
           }
         },
         {
@@ -818,7 +1038,9 @@
           "type": "string",
           "label": {
             "en": "Most serious: kind",
-            "fr": "Plus grave : type"
+            "fr": "Plus grave : type",
+            "de": "Schwerste: Art",
+            "es": "Más grave: tipo"
           }
         },
         {
@@ -826,7 +1048,9 @@
           "type": "string",
           "label": {
             "en": "Most serious: level",
-            "fr": "Plus grave : niveau"
+            "fr": "Plus grave : niveau",
+            "de": "Schwerste: Stufe",
+            "es": "Más grave: nivel"
           }
         },
         {
@@ -834,7 +1058,9 @@
           "type": "string",
           "label": {
             "en": "Most serious: level label",
-            "fr": "Plus grave : libellé du niveau"
+            "fr": "Plus grave : libellé du niveau",
+            "de": "Schwerste: Bezeichnung der Stufe",
+            "es": "Más grave: etiqueta del nivel"
           }
         },
         {
@@ -842,7 +1068,9 @@
           "type": "string",
           "label": {
             "en": "Most serious: severity",
-            "fr": "Plus grave : sévérité"
+            "fr": "Plus grave : sévérité",
+            "de": "Schwerste: Schweregrad",
+            "es": "Más grave: gravedad"
           }
         },
         {
@@ -850,7 +1078,9 @@
           "type": "string",
           "label": {
             "en": "Most serious: severity label",
-            "fr": "Plus grave : libellé de la sévérité"
+            "fr": "Plus grave : libellé de la sévérité",
+            "de": "Schwerste: Bezeichnung des Schweregrads",
+            "es": "Más grave: etiqueta de la gravedad"
           }
         },
         {
@@ -858,7 +1088,9 @@
           "type": "string",
           "label": {
             "en": "Most serious: headline",
-            "fr": "Plus grave : titre"
+            "fr": "Plus grave : titre",
+            "de": "Schwerste: Überschrift",
+            "es": "Más grave: titular"
           }
         },
         {
@@ -866,7 +1098,9 @@
           "type": "string",
           "label": {
             "en": "Most serious: instructions",
-            "fr": "Plus grave : consignes"
+            "fr": "Plus grave : consignes",
+            "de": "Schwerste: Verhaltenshinweise",
+            "es": "Más grave: instrucciones"
           }
         },
         {
@@ -874,7 +1108,9 @@
           "type": "string",
           "label": {
             "en": "Most serious: end (local time)",
-            "fr": "Plus grave : fin (heure locale)"
+            "fr": "Plus grave : fin (heure locale)",
+            "de": "Schwerste: Ende (Ortszeit)",
+            "es": "Más grave: fin (hora local)"
           }
         },
         {
@@ -882,11 +1118,15 @@
           "type": "string",
           "label": {
             "en": "Summary",
-            "fr": "Résumé"
+            "fr": "Résumé",
+            "de": "Zusammenfassung",
+            "es": "Resumen"
           },
           "description": {
             "en": "A sentence ready to put in a message.",
-            "fr": "Une phrase prête à mettre dans un message."
+            "fr": "Une phrase prête à mettre dans un message.",
+            "de": "Ein Satz, fertig für eine Nachricht.",
+            "es": "Una frase lista para poner en un mensaje."
           }
         }
       ]
@@ -895,11 +1135,15 @@
       "key": "get_forecast",
       "label": {
         "en": "Get the NWS forecast of a day",
-        "fr": "Obtenir la prévision NWS d'un jour"
+        "fr": "Obtenir la prévision NWS d'un jour",
+        "de": "NWS-Vorhersage eines Tages abrufen",
+        "es": "Obtener la previsión NWS de un día"
       },
       "description": {
         "en": "High, low, sky, chance of rain and wind of one day, with the forecaster's text.",
-        "fr": "Maximum, minimum, ciel, risque de pluie et vent d'une journée, avec le texte du prévisionniste."
+        "fr": "Maximum, minimum, ciel, risque de pluie et vent d'une journée, avec le texte du prévisionniste.",
+        "de": "Höchst- und Tiefstwert, Himmel, Regenwahrscheinlichkeit und Wind eines Tages, mit dem Text des Meteorologen.",
+        "es": "Máxima, mínima, cielo, probabilidad de lluvia y viento de un día, con el texto del meteorólogo."
       },
       "timeout_seconds": 30,
       "fields": [
@@ -908,11 +1152,15 @@
           "type": "string",
           "label": {
             "en": "House",
-            "fr": "Maison"
+            "fr": "Maison",
+            "de": "Zuhause",
+            "es": "Casa"
           },
           "description": {
             "en": "Name of the house, exactly as shown in Gladys (case-sensitive). Leave empty for the first house with a location.",
-            "fr": "Nom de la maison, exactement comme dans Gladys (majuscules comprises). Laissez vide pour la première maison localisée."
+            "fr": "Nom de la maison, exactement comme dans Gladys (majuscules comprises). Laissez vide pour la première maison localisée.",
+            "de": "Name des Zuhauses, genau wie in Gladys angezeigt (Groß-/Kleinschreibung beachten). Leer lassen für das erste Zuhause mit Standort.",
+            "es": "Nombre de la casa, exactamente como aparece en Gladys (distingue mayúsculas). Déjelo vacío para la primera casa con ubicación."
           },
           "required": false
         },
@@ -921,7 +1169,9 @@
           "type": "select",
           "label": {
             "en": "Day",
-            "fr": "Jour"
+            "fr": "Jour",
+            "de": "Tag",
+            "es": "Día"
           },
           "required": false,
           "default": "0",
@@ -930,49 +1180,63 @@
               "value": "0",
               "label": {
                 "en": "Today",
-                "fr": "Aujourd'hui"
+                "fr": "Aujourd'hui",
+                "de": "Heute",
+                "es": "Hoy"
               }
             },
             {
               "value": "1",
               "label": {
                 "en": "Tomorrow",
-                "fr": "Demain"
+                "fr": "Demain",
+                "de": "Morgen",
+                "es": "Mañana"
               }
             },
             {
               "value": "2",
               "label": {
                 "en": "In 2 days",
-                "fr": "Dans 2 jours"
+                "fr": "Dans 2 jours",
+                "de": "In 2 Tagen",
+                "es": "Dentro de 2 días"
               }
             },
             {
               "value": "3",
               "label": {
                 "en": "In 3 days",
-                "fr": "Dans 3 jours"
+                "fr": "Dans 3 jours",
+                "de": "In 3 Tagen",
+                "es": "Dentro de 3 días"
               }
             },
             {
               "value": "4",
               "label": {
                 "en": "In 4 days",
-                "fr": "Dans 4 jours"
+                "fr": "Dans 4 jours",
+                "de": "In 4 Tagen",
+                "es": "Dentro de 4 días"
               }
             },
             {
               "value": "5",
               "label": {
                 "en": "In 5 days",
-                "fr": "Dans 5 jours"
+                "fr": "Dans 5 jours",
+                "de": "In 5 Tagen",
+                "es": "Dentro de 5 días"
               }
             },
             {
               "value": "6",
               "label": {
                 "en": "In 6 days",
-                "fr": "Dans 6 jours"
+                "fr": "Dans 6 jours",
+                "de": "In 6 Tagen",
+                "es": "Dentro de 6 días"
               }
             }
           ]
@@ -984,7 +1248,9 @@
           "type": "string",
           "label": {
             "en": "Date (YYYY-MM-DD)",
-            "fr": "Date (AAAA-MM-JJ)"
+            "fr": "Date (AAAA-MM-JJ)",
+            "de": "Datum (JJJJ-MM-TT)",
+            "es": "Fecha (AAAA-MM-DD)"
           }
         },
         {
@@ -992,7 +1258,9 @@
           "type": "string",
           "label": {
             "en": "Period name",
-            "fr": "Nom de la période"
+            "fr": "Nom de la période",
+            "de": "Name des Zeitraums",
+            "es": "Nombre del periodo"
           }
         },
         {
@@ -1000,7 +1268,9 @@
           "type": "string",
           "label": {
             "en": "Sky (key)",
-            "fr": "Ciel (clé)"
+            "fr": "Ciel (clé)",
+            "de": "Himmel (Schlüssel)",
+            "es": "Cielo (clave)"
           }
         },
         {
@@ -1008,7 +1278,9 @@
           "type": "string",
           "label": {
             "en": "Sky",
-            "fr": "Ciel"
+            "fr": "Ciel",
+            "de": "Himmel",
+            "es": "Cielo"
           }
         },
         {
@@ -1016,7 +1288,9 @@
           "type": "string",
           "label": {
             "en": "NWS short forecast",
-            "fr": "Prévision courte NWS"
+            "fr": "Prévision courte NWS",
+            "de": "NWS-Kurzvorhersage",
+            "es": "Previsión breve del NWS"
           }
         },
         {
@@ -1024,7 +1298,9 @@
           "type": "number",
           "label": {
             "en": "High",
-            "fr": "Maximum"
+            "fr": "Maximum",
+            "de": "Höchstwert",
+            "es": "Máxima"
           }
         },
         {
@@ -1032,7 +1308,9 @@
           "type": "number",
           "label": {
             "en": "Low",
-            "fr": "Minimum"
+            "fr": "Minimum",
+            "de": "Tiefstwert",
+            "es": "Mínima"
           }
         },
         {
@@ -1040,7 +1318,9 @@
           "type": "number",
           "label": {
             "en": "Chance of rain (%)",
-            "fr": "Risque de pluie (%)"
+            "fr": "Risque de pluie (%)",
+            "de": "Regenwahrscheinlichkeit (%)",
+            "es": "Probabilidad de lluvia (%)"
           }
         },
         {
@@ -1048,7 +1328,9 @@
           "type": "number",
           "label": {
             "en": "Wind (km/h or mph)",
-            "fr": "Vent (km/h ou mph)"
+            "fr": "Vent (km/h ou mph)",
+            "de": "Wind (km/h oder mph)",
+            "es": "Viento (km/h o mph)"
           }
         },
         {
@@ -1056,7 +1338,9 @@
           "type": "string",
           "label": {
             "en": "Wind direction",
-            "fr": "Direction du vent"
+            "fr": "Direction du vent",
+            "de": "Windrichtung",
+            "es": "Dirección del viento"
           }
         },
         {
@@ -1064,7 +1348,9 @@
           "type": "string",
           "label": {
             "en": "Forecast text, day (English)",
-            "fr": "Texte de la prévision, jour (anglais)"
+            "fr": "Texte de la prévision, jour (anglais)",
+            "de": "Vorhersagetext, Tag (Englisch)",
+            "es": "Texto de la previsión, día (inglés)"
           }
         },
         {
@@ -1072,7 +1358,9 @@
           "type": "string",
           "label": {
             "en": "Forecast text, night (English)",
-            "fr": "Texte de la prévision, nuit (anglais)"
+            "fr": "Texte de la prévision, nuit (anglais)",
+            "de": "Vorhersagetext, Nacht (Englisch)",
+            "es": "Texto de la previsión, noche (inglés)"
           }
         },
         {
@@ -1080,11 +1368,15 @@
           "type": "string",
           "label": {
             "en": "Summary",
-            "fr": "Résumé"
+            "fr": "Résumé",
+            "de": "Zusammenfassung",
+            "es": "Resumen"
           },
           "description": {
             "en": "A sentence ready to put in a message.",
-            "fr": "Une phrase prête à mettre dans un message."
+            "fr": "Une phrase prête à mettre dans un message.",
+            "de": "Ein Satz, fertig für eine Nachricht.",
+            "es": "Una frase lista para poner en un mensaje."
           }
         }
       ]
@@ -1093,11 +1385,15 @@
       "key": "get_current",
       "label": {
         "en": "Get the current NWS conditions",
-        "fr": "Obtenir les conditions actuelles NWS"
+        "fr": "Obtenir les conditions actuelles NWS",
+        "de": "Aktuelle NWS-Bedingungen abrufen",
+        "es": "Obtener las condiciones actuales NWS"
       },
       "description": {
         "en": "The conditions measured at the nearest weather station, or forecast when it has not reported recently.",
-        "fr": "Les conditions mesurées à la station météo la plus proche, ou prévues quand elle n'a rien transmis récemment."
+        "fr": "Les conditions mesurées à la station météo la plus proche, ou prévues quand elle n'a rien transmis récemment.",
+        "de": "Die an der nächsten Wetterstation gemessenen Bedingungen oder die Vorhersage, wenn sie zuletzt nichts gemeldet hat.",
+        "es": "Las condiciones medidas en la estación meteorológica más cercana, o previstas cuando no ha transmitido nada recientemente."
       },
       "timeout_seconds": 30,
       "fields": [
@@ -1106,11 +1402,15 @@
           "type": "string",
           "label": {
             "en": "House",
-            "fr": "Maison"
+            "fr": "Maison",
+            "de": "Zuhause",
+            "es": "Casa"
           },
           "description": {
             "en": "Name of the house, exactly as shown in Gladys (case-sensitive). Leave empty for the first house with a location.",
-            "fr": "Nom de la maison, exactement comme dans Gladys (majuscules comprises). Laissez vide pour la première maison localisée."
+            "fr": "Nom de la maison, exactement comme dans Gladys (majuscules comprises). Laissez vide pour la première maison localisée.",
+            "de": "Name des Zuhauses, genau wie in Gladys angezeigt (Groß-/Kleinschreibung beachten). Leer lassen für das erste Zuhause mit Standort.",
+            "es": "Nombre de la casa, exactamente como aparece en Gladys (distingue mayúsculas). Déjelo vacío para la primera casa con ubicación."
           },
           "required": false
         }
@@ -1121,7 +1421,9 @@
           "type": "number",
           "label": {
             "en": "Temperature",
-            "fr": "Température"
+            "fr": "Température",
+            "de": "Temperatur",
+            "es": "Temperatura"
           }
         },
         {
@@ -1129,7 +1431,9 @@
           "type": "number",
           "label": {
             "en": "Feels like",
-            "fr": "Ressenti"
+            "fr": "Ressenti",
+            "de": "Gefühlt",
+            "es": "Sensación térmica"
           }
         },
         {
@@ -1137,7 +1441,9 @@
           "type": "number",
           "label": {
             "en": "Humidity (%)",
-            "fr": "Humidité (%)"
+            "fr": "Humidité (%)",
+            "de": "Luftfeuchtigkeit (%)",
+            "es": "Humedad (%)"
           }
         },
         {
@@ -1145,7 +1451,9 @@
           "type": "number",
           "label": {
             "en": "Dew point",
-            "fr": "Point de rosée"
+            "fr": "Point de rosée",
+            "de": "Taupunkt",
+            "es": "Punto de rocío"
           }
         },
         {
@@ -1153,7 +1461,9 @@
           "type": "number",
           "label": {
             "en": "Pressure (hPa)",
-            "fr": "Pression (hPa)"
+            "fr": "Pression (hPa)",
+            "de": "Luftdruck (hPa)",
+            "es": "Presión (hPa)"
           }
         },
         {
@@ -1161,7 +1471,9 @@
           "type": "number",
           "label": {
             "en": "Wind (km/h or mph)",
-            "fr": "Vent (km/h ou mph)"
+            "fr": "Vent (km/h ou mph)",
+            "de": "Wind (km/h oder mph)",
+            "es": "Viento (km/h o mph)"
           }
         },
         {
@@ -1169,7 +1481,9 @@
           "type": "number",
           "label": {
             "en": "Gusts (km/h or mph)",
-            "fr": "Rafales (km/h ou mph)"
+            "fr": "Rafales (km/h ou mph)",
+            "de": "Böen (km/h oder mph)",
+            "es": "Rachas (km/h o mph)"
           }
         },
         {
@@ -1177,7 +1491,9 @@
           "type": "string",
           "label": {
             "en": "Wind direction",
-            "fr": "Direction du vent"
+            "fr": "Direction du vent",
+            "de": "Windrichtung",
+            "es": "Dirección del viento"
           }
         },
         {
@@ -1185,7 +1501,9 @@
           "type": "number",
           "label": {
             "en": "Visibility (km or mi)",
-            "fr": "Visibilité (km ou mi)"
+            "fr": "Visibilité (km ou mi)",
+            "de": "Sichtweite (km oder mi)",
+            "es": "Visibilidad (km o mi)"
           }
         },
         {
@@ -1193,7 +1511,9 @@
           "type": "string",
           "label": {
             "en": "Sky (key)",
-            "fr": "Ciel (clé)"
+            "fr": "Ciel (clé)",
+            "de": "Himmel (Schlüssel)",
+            "es": "Cielo (clave)"
           }
         },
         {
@@ -1201,7 +1521,9 @@
           "type": "string",
           "label": {
             "en": "Sky",
-            "fr": "Ciel"
+            "fr": "Ciel",
+            "de": "Himmel",
+            "es": "Cielo"
           }
         },
         {
@@ -1209,7 +1531,9 @@
           "type": "boolean",
           "label": {
             "en": "Measured by a station",
-            "fr": "Mesuré par une station"
+            "fr": "Mesuré par une station",
+            "de": "Von einer Station gemessen",
+            "es": "Medido por una estación"
           }
         },
         {
@@ -1217,7 +1541,9 @@
           "type": "string",
           "label": {
             "en": "Station",
-            "fr": "Station"
+            "fr": "Station",
+            "de": "Station",
+            "es": "Estación"
           }
         },
         {
@@ -1225,7 +1551,9 @@
           "type": "string",
           "label": {
             "en": "Observed at (local time)",
-            "fr": "Relevé à (heure locale)"
+            "fr": "Relevé à (heure locale)",
+            "de": "Gemessen um (Ortszeit)",
+            "es": "Observado a las (hora local)"
           }
         },
         {
@@ -1233,11 +1561,15 @@
           "type": "string",
           "label": {
             "en": "Summary",
-            "fr": "Résumé"
+            "fr": "Résumé",
+            "de": "Zusammenfassung",
+            "es": "Resumen"
           },
           "description": {
             "en": "A sentence ready to put in a message.",
-            "fr": "Une phrase prête à mettre dans un message."
+            "fr": "Une phrase prête à mettre dans un message.",
+            "de": "Ein Satz, fertig für eine Nachricht.",
+            "es": "Una frase lista para poner en un mensaje."
           }
         }
       ]
@@ -1248,11 +1580,15 @@
       "key": "alerts",
       "label": {
         "en": "NWS alerts",
-        "fr": "Alertes NWS"
+        "fr": "Alertes NWS",
+        "de": "NWS-Warnungen",
+        "es": "Alertas NWS"
       },
       "description": {
         "en": "Watches, warnings and advisories in force, with their full text.",
-        "fr": "Veilles, alertes et avis en cours, avec leur texte complet."
+        "fr": "Veilles, alertes et avis en cours, avec leur texte complet.",
+        "de": "Aktive Vorwarnungen, Warnungen und Hinweise, mit ihrem vollständigen Text.",
+        "es": "Vigilancias, avisos y advertencias en vigor, con su texto completo."
       },
       "icon": "alert-triangle",
       "settings": [
@@ -1261,11 +1597,15 @@
           "type": "string",
           "label": {
             "en": "House",
-            "fr": "Maison"
+            "fr": "Maison",
+            "de": "Zuhause",
+            "es": "Casa"
           },
           "description": {
             "en": "Name of the house, exactly as shown in Gladys (case-sensitive). Leave empty for the first house with a location.",
-            "fr": "Nom de la maison, exactement comme dans Gladys (majuscules comprises). Laissez vide pour la première maison localisée."
+            "fr": "Nom de la maison, exactement comme dans Gladys (majuscules comprises). Laissez vide pour la première maison localisée.",
+            "de": "Name des Zuhauses, genau wie in Gladys angezeigt (Groß-/Kleinschreibung beachten). Leer lassen für das erste Zuhause mit Standort.",
+            "es": "Nombre de la casa, exactamente como aparece en Gladys (distingue mayúsculas). Déjelo vacío para la primera casa con ubicación."
           },
           "required": false
         }
@@ -1275,11 +1615,15 @@
       "key": "forecast",
       "label": {
         "en": "NWS text forecast",
-        "fr": "Prévision NWS détaillée"
+        "fr": "Prévision NWS détaillée",
+        "de": "NWS-Textvorhersage",
+        "es": "Previsión NWS detallada"
       },
       "description": {
         "en": "The forecaster's narrative, period by period, with the NWS icons.",
-        "fr": "Le texte du prévisionniste, période par période, avec les icônes NWS."
+        "fr": "Le texte du prévisionniste, période par période, avec les icônes NWS.",
+        "de": "Der Text des Meteorologen, Zeitraum für Zeitraum, mit den NWS-Symbolen.",
+        "es": "El texto del meteorólogo, periodo a periodo, con los iconos del NWS."
       },
       "icon": "file-text",
       "settings": [
@@ -1288,11 +1632,15 @@
           "type": "string",
           "label": {
             "en": "House",
-            "fr": "Maison"
+            "fr": "Maison",
+            "de": "Zuhause",
+            "es": "Casa"
           },
           "description": {
             "en": "Name of the house, exactly as shown in Gladys (case-sensitive). Leave empty for the first house with a location.",
-            "fr": "Nom de la maison, exactement comme dans Gladys (majuscules comprises). Laissez vide pour la première maison localisée."
+            "fr": "Nom de la maison, exactement comme dans Gladys (majuscules comprises). Laissez vide pour la première maison localisée.",
+            "de": "Name des Zuhauses, genau wie in Gladys angezeigt (Groß-/Kleinschreibung beachten). Leer lassen für das erste Zuhause mit Standort.",
+            "es": "Nombre de la casa, exactamente como aparece en Gladys (distingue mayúsculas). Déjelo vacío para la primera casa con ubicación."
           },
           "required": false
         },
@@ -1301,7 +1649,9 @@
           "type": "boolean",
           "label": {
             "en": "Show the icons",
-            "fr": "Afficher les icônes"
+            "fr": "Afficher les icônes",
+            "de": "Symbole anzeigen",
+            "es": "Mostrar los iconos"
           },
           "default": true
         }
@@ -1311,11 +1661,15 @@
       "key": "hourly",
       "label": {
         "en": "NWS next hours",
-        "fr": "NWS heure par heure"
+        "fr": "NWS heure par heure",
+        "de": "NWS nächste Stunden",
+        "es": "NWS próximas horas"
       },
       "description": {
         "en": "Temperature, chance of rain or wind of the next hours, as a curve.",
-        "fr": "Température, risque de pluie ou vent des prochaines heures, en courbe."
+        "fr": "Température, risque de pluie ou vent des prochaines heures, en courbe.",
+        "de": "Temperatur, Regenwahrscheinlichkeit oder Wind der nächsten Stunden, als Kurve.",
+        "es": "Temperatura, probabilidad de lluvia o viento de las próximas horas, en curva."
       },
       "icon": "trending-up",
       "settings": [
@@ -1324,11 +1678,15 @@
           "type": "string",
           "label": {
             "en": "House",
-            "fr": "Maison"
+            "fr": "Maison",
+            "de": "Zuhause",
+            "es": "Casa"
           },
           "description": {
             "en": "Name of the house, exactly as shown in Gladys (case-sensitive). Leave empty for the first house with a location.",
-            "fr": "Nom de la maison, exactement comme dans Gladys (majuscules comprises). Laissez vide pour la première maison localisée."
+            "fr": "Nom de la maison, exactement comme dans Gladys (majuscules comprises). Laissez vide pour la première maison localisée.",
+            "de": "Name des Zuhauses, genau wie in Gladys angezeigt (Groß-/Kleinschreibung beachten). Leer lassen für das erste Zuhause mit Standort.",
+            "es": "Nombre de la casa, exactamente como aparece en Gladys (distingue mayúsculas). Déjelo vacío para la primera casa con ubicación."
           },
           "required": false
         },
@@ -1337,7 +1695,9 @@
           "type": "select",
           "label": {
             "en": "Show",
-            "fr": "Afficher"
+            "fr": "Afficher",
+            "de": "Anzeigen",
+            "es": "Mostrar"
           },
           "default": "temperature",
           "options": [
@@ -1345,21 +1705,27 @@
               "value": "temperature",
               "label": {
                 "en": "Temperature and feels like",
-                "fr": "Température et ressenti"
+                "fr": "Température et ressenti",
+                "de": "Temperatur und gefühlte Temperatur",
+                "es": "Temperatura y sensación térmica"
               }
             },
             {
               "value": "precipitation",
               "label": {
                 "en": "Chance of rain",
-                "fr": "Risque de pluie"
+                "fr": "Risque de pluie",
+                "de": "Regenwahrscheinlichkeit",
+                "es": "Probabilidad de lluvia"
               }
             },
             {
               "value": "wind",
               "label": {
                 "en": "Wind and gusts",
-                "fr": "Vent et rafales"
+                "fr": "Vent et rafales",
+                "de": "Wind und Böen",
+                "es": "Viento y rachas"
               }
             }
           ]
@@ -1369,7 +1735,9 @@
           "type": "select",
           "label": {
             "en": "Period",
-            "fr": "Période"
+            "fr": "Période",
+            "de": "Zeitraum",
+            "es": "Periodo"
           },
           "default": "24",
           "options": [
@@ -1377,21 +1745,27 @@
               "value": "12",
               "label": {
                 "en": "12 hours",
-                "fr": "12 heures"
+                "fr": "12 heures",
+                "de": "12 Stunden",
+                "es": "12 horas"
               }
             },
             {
               "value": "24",
               "label": {
                 "en": "24 hours",
-                "fr": "24 heures"
+                "fr": "24 heures",
+                "de": "24 Stunden",
+                "es": "24 horas"
               }
             },
             {
               "value": "48",
               "label": {
                 "en": "48 hours",
-                "fr": "48 heures"
+                "fr": "48 heures",
+                "de": "48 Stunden",
+                "es": "48 horas"
               }
             }
           ]
