@@ -1,0 +1,592 @@
+{
+  "generated_from": "version 1.0.0",
+  "manifest": {
+    "type": "weather",
+    "transports": ["cloud"],
+    "config_schema": [
+      {
+        "key": "intro",
+        "type": "section"
+      },
+      {
+        "key": "contact",
+        "type": "string"
+      },
+      {
+        "key": "cache_duration",
+        "type": "number"
+      },
+      {
+        "key": "alert_check_interval",
+        "type": "number"
+      }
+    ],
+    "scene_triggers": [
+      {
+        "key": "alert_issued",
+        "fields": [
+          {
+            "key": "house",
+            "type": "string"
+          },
+          {
+            "key": "category",
+            "type": "multi_select"
+          },
+          {
+            "key": "level",
+            "type": "multi_select"
+          },
+          {
+            "key": "severity",
+            "type": "multi_select"
+          }
+        ],
+        "options": {
+          "category": [
+            "tornado",
+            "hurricane",
+            "thunderstorm",
+            "flood",
+            "winter",
+            "cold",
+            "heat",
+            "wind",
+            "fire",
+            "fog",
+            "air",
+            "marine",
+            "other"
+          ],
+          "level": ["warning", "watch", "advisory", "statement", "other"],
+          "severity": ["extreme", "severe", "moderate", "minor", "unknown"]
+        },
+        "variables": [
+          {
+            "key": "house",
+            "type": "string"
+          },
+          {
+            "key": "event",
+            "type": "string"
+          },
+          {
+            "key": "category",
+            "type": "string"
+          },
+          {
+            "key": "category_label",
+            "type": "string"
+          },
+          {
+            "key": "level",
+            "type": "string"
+          },
+          {
+            "key": "level_label",
+            "type": "string"
+          },
+          {
+            "key": "severity",
+            "type": "string"
+          },
+          {
+            "key": "urgency",
+            "type": "string"
+          },
+          {
+            "key": "certainty",
+            "type": "string"
+          },
+          {
+            "key": "headline",
+            "type": "string"
+          },
+          {
+            "key": "area",
+            "type": "string"
+          },
+          {
+            "key": "onset",
+            "type": "string"
+          },
+          {
+            "key": "ends",
+            "type": "string"
+          },
+          {
+            "key": "instruction",
+            "type": "string"
+          },
+          {
+            "key": "description",
+            "type": "string"
+          },
+          {
+            "key": "summary",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "key": "alert_ended",
+        "fields": [
+          {
+            "key": "house",
+            "type": "string"
+          },
+          {
+            "key": "category",
+            "type": "multi_select"
+          },
+          {
+            "key": "level",
+            "type": "multi_select"
+          }
+        ],
+        "options": {
+          "category": [
+            "tornado",
+            "hurricane",
+            "thunderstorm",
+            "flood",
+            "winter",
+            "cold",
+            "heat",
+            "wind",
+            "fire",
+            "fog",
+            "air",
+            "marine",
+            "other"
+          ],
+          "level": ["warning", "watch", "advisory", "statement", "other"]
+        },
+        "variables": [
+          {
+            "key": "house",
+            "type": "string"
+          },
+          {
+            "key": "event",
+            "type": "string"
+          },
+          {
+            "key": "category",
+            "type": "string"
+          },
+          {
+            "key": "category_label",
+            "type": "string"
+          },
+          {
+            "key": "level",
+            "type": "string"
+          },
+          {
+            "key": "level_label",
+            "type": "string"
+          },
+          {
+            "key": "severity",
+            "type": "string"
+          },
+          {
+            "key": "area",
+            "type": "string"
+          },
+          {
+            "key": "summary",
+            "type": "string"
+          }
+        ]
+      }
+    ],
+    "scene_actions": [
+      {
+        "key": "get_alerts",
+        "fields": [
+          {
+            "key": "house",
+            "type": "string"
+          }
+        ],
+        "options": {},
+        "outputs": [
+          {
+            "key": "count",
+            "type": "number"
+          },
+          {
+            "key": "has_alert",
+            "type": "boolean"
+          },
+          {
+            "key": "has_warning",
+            "type": "boolean"
+          },
+          {
+            "key": "warnings",
+            "type": "number"
+          },
+          {
+            "key": "watches",
+            "type": "number"
+          },
+          {
+            "key": "advisories",
+            "type": "number"
+          },
+          {
+            "key": "events",
+            "type": "string"
+          },
+          {
+            "key": "top_event",
+            "type": "string"
+          },
+          {
+            "key": "top_category",
+            "type": "string"
+          },
+          {
+            "key": "top_category_label",
+            "type": "string"
+          },
+          {
+            "key": "top_level",
+            "type": "string"
+          },
+          {
+            "key": "top_level_label",
+            "type": "string"
+          },
+          {
+            "key": "top_severity",
+            "type": "string"
+          },
+          {
+            "key": "top_severity_label",
+            "type": "string"
+          },
+          {
+            "key": "top_headline",
+            "type": "string"
+          },
+          {
+            "key": "top_instruction",
+            "type": "string"
+          },
+          {
+            "key": "top_ends",
+            "type": "string"
+          },
+          {
+            "key": "summary",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "key": "get_forecast",
+        "fields": [
+          {
+            "key": "house",
+            "type": "string"
+          },
+          {
+            "key": "day",
+            "type": "select"
+          }
+        ],
+        "options": {
+          "day": ["0", "1", "2", "3", "4", "5", "6"]
+        },
+        "outputs": [
+          {
+            "key": "date",
+            "type": "string"
+          },
+          {
+            "key": "name",
+            "type": "string"
+          },
+          {
+            "key": "condition",
+            "type": "string"
+          },
+          {
+            "key": "condition_label",
+            "type": "string"
+          },
+          {
+            "key": "short_forecast",
+            "type": "string"
+          },
+          {
+            "key": "temperature_max",
+            "type": "number"
+          },
+          {
+            "key": "temperature_min",
+            "type": "number"
+          },
+          {
+            "key": "precipitation_probability",
+            "type": "number"
+          },
+          {
+            "key": "wind_speed",
+            "type": "number"
+          },
+          {
+            "key": "wind_direction",
+            "type": "string"
+          },
+          {
+            "key": "detailed_forecast",
+            "type": "string"
+          },
+          {
+            "key": "detailed_forecast_night",
+            "type": "string"
+          },
+          {
+            "key": "summary",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "key": "get_current",
+        "fields": [
+          {
+            "key": "house",
+            "type": "string"
+          }
+        ],
+        "options": {},
+        "outputs": [
+          {
+            "key": "temperature",
+            "type": "number"
+          },
+          {
+            "key": "apparent_temperature",
+            "type": "number"
+          },
+          {
+            "key": "humidity",
+            "type": "number"
+          },
+          {
+            "key": "dew_point",
+            "type": "number"
+          },
+          {
+            "key": "pressure",
+            "type": "number"
+          },
+          {
+            "key": "wind_speed",
+            "type": "number"
+          },
+          {
+            "key": "wind_gust",
+            "type": "number"
+          },
+          {
+            "key": "wind_direction",
+            "type": "string"
+          },
+          {
+            "key": "visibility",
+            "type": "number"
+          },
+          {
+            "key": "condition",
+            "type": "string"
+          },
+          {
+            "key": "condition_label",
+            "type": "string"
+          },
+          {
+            "key": "observed",
+            "type": "boolean"
+          },
+          {
+            "key": "station",
+            "type": "string"
+          },
+          {
+            "key": "observed_at",
+            "type": "string"
+          },
+          {
+            "key": "summary",
+            "type": "string"
+          }
+        ]
+      }
+    ],
+    "widgets": [
+      {
+        "key": "alerts",
+        "settings": [
+          {
+            "key": "house",
+            "type": "string"
+          }
+        ],
+        "options": {}
+      },
+      {
+        "key": "forecast",
+        "settings": [
+          {
+            "key": "house",
+            "type": "string"
+          },
+          {
+            "key": "show_icons",
+            "type": "boolean"
+          }
+        ],
+        "options": {}
+      },
+      {
+        "key": "hourly",
+        "settings": [
+          {
+            "key": "house",
+            "type": "string"
+          },
+          {
+            "key": "metric",
+            "type": "select"
+          },
+          {
+            "key": "hours",
+            "type": "select"
+          }
+        ],
+        "options": {
+          "metric": ["temperature", "precipitation", "wind"],
+          "hours": ["12", "24", "48"]
+        }
+      }
+    ]
+  },
+  "code": {
+    "alert_issued_data": [
+      "house",
+      "event",
+      "category",
+      "category_label",
+      "level",
+      "level_label",
+      "severity",
+      "urgency",
+      "certainty",
+      "headline",
+      "area",
+      "onset",
+      "ends",
+      "instruction",
+      "description",
+      "summary"
+    ],
+    "alert_ended_data": [
+      "house",
+      "event",
+      "category",
+      "category_label",
+      "level",
+      "level_label",
+      "severity",
+      "area",
+      "summary"
+    ],
+    "get_alerts_outputs": [
+      "count",
+      "has_alert",
+      "has_warning",
+      "warnings",
+      "watches",
+      "advisories",
+      "events",
+      "top_event",
+      "top_category",
+      "top_category_label",
+      "top_level",
+      "top_level_label",
+      "top_severity",
+      "top_severity_label",
+      "top_headline",
+      "top_instruction",
+      "top_ends",
+      "summary"
+    ],
+    "get_forecast_outputs": [
+      "date",
+      "name",
+      "condition",
+      "condition_label",
+      "short_forecast",
+      "temperature_max",
+      "temperature_min",
+      "precipitation_probability",
+      "wind_speed",
+      "wind_direction",
+      "detailed_forecast",
+      "detailed_forecast_night",
+      "summary"
+    ],
+    "get_current_outputs": [
+      "temperature",
+      "apparent_temperature",
+      "humidity",
+      "dew_point",
+      "pressure",
+      "wind_speed",
+      "wind_gust",
+      "wind_direction",
+      "visibility",
+      "condition",
+      "condition_label",
+      "observed",
+      "station",
+      "observed_at",
+      "summary"
+    ]
+  },
+  "image_keys": {
+    "examples": {
+      "nws-day-tsraqhi-40": {
+        "url": "https://api.weather.gov/icons/land/day/tsra_hi,40?size=medium",
+        "path": "land/day/tsra_hi,40"
+      },
+      "nws-night-rainqshowers-30-tsra-60": {
+        "url": "https://api.weather.gov/icons/land/night/rain_showers,30/tsra,60?size=medium",
+        "path": "land/night/rain_showers,30/tsra,60"
+      },
+      "nws-day-skc": {
+        "url": "https://api.weather.gov/icons/land/day/skc?size=medium",
+        "path": "land/day/skc"
+      },
+      "nws-night-few": {
+        "url": "https://api.weather.gov/icons/land/night/few?size=medium",
+        "path": "land/night/few"
+      },
+      "nws-day-windqbkn": {
+        "url": "https://api.weather.gov/icons/land/day/wind_bkn?size=medium",
+        "path": "land/day/wind_bkn"
+      },
+      "nws-day-rainqsnow-70": {
+        "url": "https://api.weather.gov/icons/land/day/rain_snow,70?size=medium",
+        "path": "land/day/rain_snow,70"
+      }
+    }
+  }
+}
