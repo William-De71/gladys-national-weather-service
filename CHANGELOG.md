@@ -5,6 +5,12 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions
 follow [Semantic Versioning](https://semver.org/). This file is generated at
 each release from the Conventional Commits: do not edit it by hand.
 
+## [1.1.1] - 2026-10-24
+
+### Security
+
+- build the image on Node.js 24.22.1 or later ([737c07e](https://github.com/William-De71/gladys-national-weather-service/commit/737c07e9a697f4733a67b04aac04afd86be5251b))
+
 ## [1.1.0] - 2026-10-13
 
 ### Added
@@ -30,4 +36,5 @@ each release from the Conventional Commits: do not edit it by hand.
 
 * use the National Weather Service logo as the cover ([ae8b04f](https://github.com/William-De71/gladys-national-weather-service/commit/ae8b04ff6b064020ad1791f44416021efdf701dd))
 
+[1.1.1]: https://github.com/William-De71/gladys-national-weather-service/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/William-De71/gladys-national-weather-service/compare/v1.0.0...v1.1.0
