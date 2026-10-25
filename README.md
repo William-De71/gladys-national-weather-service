@@ -5,7 +5,7 @@
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![Latest release](https://img.shields.io/github/v/release/William-De71/gladys-national-weather-service?sort=semver)](https://github.com/William-De71/gladys-national-weather-service/releases)
 [![CI](https://img.shields.io/github/actions/workflow/status/William-De71/gladys-national-weather-service/release.yml?branch=main&label=CI)](https://github.com/William-De71/gladys-national-weather-service/actions/workflows/release.yml)
-[![Gladys](https://img.shields.io/badge/Gladys-%E2%89%A5%205.1.1-2f6fb5)](https://gladysassistant.com)
+[![Gladys](https://img.shields.io/badge/Gladys-%E2%89%A5%205.3.0-2f6fb5)](https://gladysassistant.com)
 
 ![National Weather Service for Gladys Assistant](cover.jpg)
 
@@ -234,8 +234,8 @@ network. Beyond the unit tests:
 - `docs/illustrations/render.sh` regenerates the widget illustrations of `docs/assets` from the widget code
   (headless Chrome, the Gladys front styles): run it after any change to a widget.
 
-Layout: see [CLAUDE.md](CLAUDE.md). `gladys_version` is `>=5.1.1` (weather type, scene triggers and actions,
-dashboard widgets of external integrations).
+Layout: see [CLAUDE.md](CLAUDE.md). `gladys_version` is `>=5.3.0` (weather type, scene triggers and actions,
+dashboard widgets of external integrations, catalog keywords and countries of Gladys 5.3).
 
 ## Release and commit convention
 
