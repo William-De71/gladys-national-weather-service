@@ -5,6 +5,12 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions
 follow [Semantic Versioning](https://semver.org/). This file is generated at
 each release from the Conventional Commits: do not edit it by hand.
 
+## [1.2.0] - 2026-10-25
+
+### Added
+
+- require Gladys 5.3 and declare catalog keywords and countries ([ee252e7](https://github.com/William-De71/gladys-national-weather-service/commit/ee252e70d64d13f346f7cdad2bdfc4eeb8c72dae))
+
 ## [1.1.1] - 2026-10-24
 
 ### Security
@@ -36,5 +42,6 @@ each release from the Conventional Commits: do not edit it by hand.
 
 * use the National Weather Service logo as the cover ([ae8b04f](https://github.com/William-De71/gladys-national-weather-service/commit/ae8b04ff6b064020ad1791f44416021efdf701dd))
 
+[1.2.0]: https://github.com/William-De71/gladys-national-weather-service/compare/v1.1.1...v1.2.0
 [1.1.1]: https://github.com/William-De71/gladys-national-weather-service/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/William-De71/gladys-national-weather-service/compare/v1.0.0...v1.1.0
